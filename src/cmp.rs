@@ -1,246 +1,264 @@
 //! # Comparison module for strings and chars
-//! 
-//! # Example
-//! 
-//! ```
-//! use str_utils::cmp::EqExt;
-//! 
-//! // perform an accent insensitive string comparison.
-//! assert!("abcé".eq_ai("abcè"));
-//! 
-//! // perform an accent / case insensitive string comparison.
-//! assert!("Abc".eq_ai_ci("àBc"));
-//! ```
+//!
+//! This module regroup comparison trait for equality and ordering.
+
+use std::cmp::Ordering;
+use std::str::Chars;
 use unidecode::unidecode_char;
 
+/// Trait for equality comparisons of string and chars.
+///
+/// This trait allow to do accent and case insensitive comparisons.
 pub trait EqExt<Rhs = Self> {
     /// Accent insensitive
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::cmp::EqExt;
+    ///
+    /// // string comparison
+    /// assert!("Café".eq_ai("Cafe"));
+    ///
+    /// // char comparison
+    /// assert!('e'.eq_ai('é'));
+    /// ```
     fn eq_ai(self, other: Rhs) -> bool
     where
         Self: Sized;
 
     /// Accent / Case insensitive
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::cmp::EqExt;
+    ///
+    /// // string comparison
+    /// assert!("Café".eq_ai_ci("cafe"));
+    ///
+    /// // char comparison
+    /// assert!('e'.eq_ai_ci('É'));
+    /// ```
     fn eq_ai_ci(self, other: Rhs) -> bool
     where
         Self: Sized;
 
     /// Case insensitive
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::cmp::EqExt;
+    ///
+    /// // string comparison
+    /// assert!("street".eq_ci("Street"));
+    ///
+    /// // char comparison
+    /// assert!('C'.eq_ci('c'));
+    ///
+    /// // owned string comparison
+    /// assert!("abc".to_owned().eq_ci("ABC"));
+    /// ```
     fn eq_ci(self, other: Rhs) -> bool
     where
         Self: Sized;
 }
 
 impl EqExt for char {
-    fn eq_ai(self, b: Self) -> bool
+    fn eq_ai(self, r: Self) -> bool
     where
         Self: Sized,
     {
-        if self == b {
+        if self == r {
             return true;
         }
 
-        let a = unidecode_char(self);
-        let b = unidecode_char(b);
-        a == b
+        let l = unidecode_char(self);
+        let r = unidecode_char(r);
+        l == r
     }
 
-    fn eq_ai_ci(self, b: Self) -> bool
+    fn eq_ai_ci(self, r: Self) -> bool
     where
         Self: Sized,
     {
-        if self == b {
+        if self == r {
             return true;
         }
 
-        let a = unidecode_char(self);
-        let b = unidecode_char(b);
+        let l = unidecode_char(self);
+        let r = unidecode_char(r);
 
-        if a == b {
+        if l == r {
             return true;
         }
 
-        a.chars()
-            .flat_map(|a| a.to_lowercase())
-            .eq(b.chars().flat_map(|b| b.to_lowercase()))
+        l.chars()
+            .flat_map(char::to_lowercase)
+            .eq(r.chars().flat_map(char::to_lowercase))
     }
 
-    fn eq_ci(self, b: Self) -> bool
+    #[inline]
+    fn eq_ci(self, r: Self) -> bool
     where
         Self: Sized,
     {
-        self == b || self.to_lowercase().eq(b.to_lowercase())
+        self == r || self.to_lowercase().eq(r.to_lowercase())
     }
 }
 
 impl EqExt for &str {
-    fn eq_ai(self, b: Self) -> bool
+    #[inline]
+    fn eq_ai(self, r: Self) -> bool
     where
         Self: Sized,
     {
-        if self == b {
-            return true;
-        }
-
-        let mut a = self.chars();
-        let mut b = b.chars();
-
-        loop {
-            match (a.next(), b.next()) {
-                (Some(a), Some(b)) => {
-                    if !a.eq_ai(b) {
-                        return false;
-                    }
-                }
-                (Some(_), None) | (None, Some(_)) => {
-                    return false;
-                }
-                (None, None) => {
-                    return true;
-                }
-            }
-        }
+        self == r || eq_chars(self.chars(), r.chars(), EqExt::eq_ai)
     }
 
-    fn eq_ai_ci(self, b: Self) -> bool
+    #[inline]
+    fn eq_ai_ci(self, r: Self) -> bool
     where
         Self: Sized,
     {
-        if self == b {
-            return true;
-        }
-
-        let mut a = self.chars();
-        let mut b = b.chars();
-
-        loop {
-            match (a.next(), b.next()) {
-                (Some(a), Some(b)) => {
-                    if !a.eq_ai_ci(b) {
-                        return false;
-                    }
-                }
-                (Some(_), None) | (None, Some(_)) => {
-                    return false;
-                }
-                (None, None) => {
-                    return true;
-                }
-            }
-        }
+        self == r || eq_chars(self.chars(), r.chars(), EqExt::eq_ai_ci)
     }
 
-    fn eq_ci(self, b: Self) -> bool
+    #[inline]
+    fn eq_ci(self, r: Self) -> bool
     where
         Self: Sized,
     {
-        if self == b {
-            return true;
-        }
-
-        let mut a = self.chars();
-        let mut b = b.chars();
-
-        loop {
-            match (a.next(), b.next()) {
-                (Some(a), Some(b)) => {
-                    if !a.eq_ci(b) {
-                        return false;
-                    }
-                }
-                (Some(_), None) | (None, Some(_)) => {
-                    return false;
-                }
-                (None, None) => {
-                    return true;
-                }
-            }
-        }
+        self == r || eq_chars(self.chars(), r.chars(), EqExt::eq_ci)
     }
 }
 
 impl EqExt<&str> for &String {
-    fn eq_ai(self, b: &str) -> bool
+    #[inline]
+    fn eq_ai(self, r: &str) -> bool
     where
         Self: Sized,
     {
-        if self == b {
-            return true;
-        }
-
-        let mut a = self.chars();
-        let mut b = b.chars();
-
-        loop {
-            match (a.next(), b.next()) {
-                (Some(a), Some(b)) => {
-                    if !a.eq_ai(b) {
-                        return false;
-                    }
-                }
-                (Some(_), None) | (None, Some(_)) => {
-                    return false;
-                }
-                (None, None) => {
-                    return true;
-                }
-            }
-        }
+        self.as_str().eq_ai(r)
     }
 
-    fn eq_ai_ci(self, b: &str) -> bool
+    #[inline]
+    fn eq_ai_ci(self, r: &str) -> bool
     where
         Self: Sized,
     {
-        if self == b {
-            return true;
-        }
-
-        let mut a = self.chars();
-        let mut b = b.chars();
-
-        loop {
-            match (a.next(), b.next()) {
-                (Some(a), Some(b)) => {
-                    if !a.eq_ai_ci(b) {
-                        return false;
-                    }
-                }
-                (Some(_), None) | (None, Some(_)) => {
-                    return false;
-                }
-                (None, None) => {
-                    return true;
-                }
-            }
-        }
+        self.as_str().eq_ai_ci(r)
     }
 
-    fn eq_ci(self, b: &str) -> bool
+    #[inline]
+    fn eq_ci(self, r: &str) -> bool
     where
         Self: Sized,
     {
-        if self == b {
-            return true;
-        }
+        self.as_str().eq_ci(r)
+    }
+}
 
-        let mut a = self.chars();
-        let mut b = b.chars();
-
-        loop {
-            match (a.next(), b.next()) {
-                (Some(a), Some(b)) => {
-                    if !a.eq_ci(b) {
-                        return false;
-                    }
+fn eq_chars<F>(mut l: Chars, mut r: Chars, f: F) -> bool
+where
+    F: Fn(char, char) -> bool,
+{
+    loop {
+        return match (l.next(), r.next()) {
+            (Some(l), Some(r)) => {
+                if f(l, r) {
+                    continue;
                 }
-                (Some(_), None) | (None, Some(_)) => {
-                    return false;
-                }
-                (None, None) => {
-                    return true;
-                }
+                false
             }
-        }
+            (Some(_), None) | (None, Some(_)) => false,
+            (None, None) => true,
+        };
+    }
+}
+
+/// Trait for ordering of string and chars.
+///
+/// This trait allow to do accent and case insensitive ordering.
+pub trait OrdExt<Rhs = Self> {
+    /// Accent insensitive comparison.
+    fn cmp_ai(self, rhs: Rhs) -> Ordering;
+
+    /// Accent / case insensitive comparison.
+    fn cmp_ai_ci(self, rhs: Rhs) -> Ordering;
+
+    /// Case insensitive comparison.
+    fn cmp_ci(self, rhs: Rhs) -> Ordering;
+}
+
+impl OrdExt<char> for char {
+    #[inline]
+    fn cmp_ai(self, r: char) -> Ordering {
+        unidecode_char(self).cmp(unidecode_char(r))
+    }
+
+    fn cmp_ai_ci(self, r: char) -> Ordering {
+        unidecode_char(self)
+            .chars()
+            .flat_map(char::to_lowercase)
+            .cmp(unidecode_char(r).chars().flat_map(char::to_lowercase))
+    }
+
+    #[inline]
+    fn cmp_ci(self, r: char) -> Ordering {
+        self.to_lowercase().cmp(r.to_lowercase())
+    }
+}
+
+impl OrdExt<&str> for &str {
+    #[inline]
+    fn cmp_ai(self, r: &str) -> Ordering {
+        ord_chars(self.chars(), r.chars(), OrdExt::cmp_ai)
+    }
+
+    #[inline]
+    fn cmp_ai_ci(self, r: &str) -> Ordering {
+        ord_chars(self.chars(), r.chars(), OrdExt::cmp_ai_ci)
+    }
+
+    #[inline]
+    fn cmp_ci(self, r: &str) -> Ordering {
+        ord_chars(self.chars(), r.chars(), OrdExt::cmp_ci)
+    }
+}
+
+impl OrdExt<&str> for &String {
+    #[inline]
+    fn cmp_ai(self, r: &str) -> Ordering {
+        self.as_str().cmp_ai(r)
+    }
+
+    #[inline]
+    fn cmp_ai_ci(self, r: &str) -> Ordering {
+        self.as_str().cmp_ai_ci(r)
+    }
+
+    #[inline]
+    fn cmp_ci(self, r: &str) -> Ordering {
+        self.as_str().cmp_ci(r)
+    }
+}
+
+fn ord_chars<F>(mut l: Chars, mut r: Chars, f: F) -> Ordering
+where
+    F: Fn(char, char) -> Ordering,
+{
+    loop {
+        return match (l.next(), r.next()) {
+            (Some(l), Some(r)) => {
+                let v = f(l, r);
+                if v == Ordering::Equal {
+                    continue;
+                }
+                v
+            }
+            (None, Some(_)) => Ordering::Less,
+            (Some(_), None) => Ordering::Greater,
+            (None, None) => Ordering::Equal,
+        };
     }
 }
 
