@@ -1,0 +1,8 @@
+[package]
+name = "str_utils"
+version = "0.1.0"
+authors = ["Dany Laporte <dany_laporte@hotmail.com>"]
+edition = "2018"
+
+[dependencies]
+unidecode = "0.3"
