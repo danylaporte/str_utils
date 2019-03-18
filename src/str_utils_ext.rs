@@ -1,16 +1,17 @@
 use super::cmp::EqExt;
+use super::CharExt;
 
 /// Trait for searching string with accent / case insensitive comparison.
 pub trait StrUtilsExt {
     /// Returns true if the given pattern matches a suffix of this string slice.
     /// Returns false if it does not.
-    /// 
+    ///
     /// The comparison is accent insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// assert!("Press Café".ends_with_ai("Cafe"));
     /// ```
     fn ends_with_ai(self, pat: &str) -> bool
@@ -19,13 +20,13 @@ pub trait StrUtilsExt {
 
     /// Returns true if the given pattern matches a suffix of this string slice.
     /// Returns false if it does not.
-    /// 
+    ///
     /// The comparison is accent / case insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// assert!("Press Café".ends_with_ai_ci("cafe"));
     /// ```
     fn ends_with_ai_ci(self, pat: &str) -> bool
@@ -34,13 +35,13 @@ pub trait StrUtilsExt {
 
     /// Returns true if the given pattern matches a suffix of this string slice.
     /// Returns false if it does not.
-    /// 
+    ///
     /// The comparison is case insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// assert!("Press Cafe".ends_with_ci("cafe"));
     /// ```
     fn ends_with_ci(self, pat: &str) -> bool
@@ -49,13 +50,13 @@ pub trait StrUtilsExt {
 
     /// Returns the byte index of the first character of this string slice that matches the pattern.
     /// Returns None if the pattern doesn't match.
-    /// 
+    ///
     /// The comparison is accent insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// let s = "Löwe 老虎 Léopard";
     ///
     /// assert_eq!(s.find_ai("L"), Some(0));
@@ -68,13 +69,13 @@ pub trait StrUtilsExt {
 
     /// Returns the byte index of the first character of this string slice that matches the pattern.
     /// Returns None if the pattern doesn't match.
-    /// 
+    ///
     /// The comparison is accent / case insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// let s = "Löwe 老虎 Léopard";
     ///
     /// assert_eq!(s.find_ai_ci("l"), Some(0));
@@ -87,13 +88,13 @@ pub trait StrUtilsExt {
 
     /// Returns the byte index of the first character of this string slice that matches the pattern.
     /// Returns None if the pattern doesn't match.
-    /// 
+    ///
     /// The comparison is accent / case insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// let s = "Löwe 老虎 Léopard";
     ///
     /// assert_eq!(s.find_ci("l"), Some(0));
@@ -106,13 +107,13 @@ pub trait StrUtilsExt {
 
     /// Returns true if the given pattern matches a prefix of this string slice.
     /// Returns false if it does not.
-    /// 
+    ///
     /// The comparison is accent insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// assert!("Café Arabica".starts_with_ai("Cafe"));
     /// ```
     fn starts_with_ai(self, pat: &str) -> bool
@@ -121,13 +122,13 @@ pub trait StrUtilsExt {
 
     /// Returns true if the given pattern matches a prefix of this string slice.
     /// Returns false if it does not.
-    /// 
+    ///
     /// The comparison is accent / case insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// assert!("Café Arabica".starts_with_ai_ci("cafe"));
     /// ```
     fn starts_with_ai_ci(self, pat: &str) -> bool
@@ -136,28 +137,64 @@ pub trait StrUtilsExt {
 
     /// Returns true if the given pattern matches a prefix of this string slice.
     /// Returns false if it does not.
-    /// 
+    ///
     /// The comparison is case insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// assert!("Cafe Arabica".starts_with_ci("cafe"));
     /// ```
     fn starts_with_ci(self, pat: &str) -> bool
     where
         Self: Sized;
 
-    /// Returns true if the given pattern matches a sub-slice of this string slice.
-    /// Returns false if it does not.
-    /// 
-    /// The comparison is accent insensitive.
-    /// 
+    /// Transform into a no accent String.
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
+    /// assert_eq!("Café Arabica".no_accent(), "Cafe Arabica");
+    /// ```
+    fn no_accent(self) -> String
+    where
+        Self: Sized;
+
+    /// Transform into a no accent lowercase String.
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::StrUtilsExt;
+    ///
+    /// assert_eq!("Café Arabica".no_accent_lowercase(), "cafe arabica");
+    /// ```
+    fn no_accent_lowercase(self) -> String
+    where
+        Self: Sized;
+
+    /// Transform into a no accent uppercase String.
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::StrUtilsExt;
+    ///
+    /// assert_eq!("Café Arabica".no_accent_uppercase(), "CAFE ARABICA");
+    /// ```
+    fn no_accent_uppercase(self) -> String
+    where
+        Self: Sized;
+
+    /// Returns true if the given pattern matches a sub-slice of this string slice.
+    /// Returns false if it does not.
+    ///
+    /// The comparison is accent insensitive.
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::StrUtilsExt;
+    ///
     /// assert!("Café Arabica".contains_ai("Cafe"));
     /// ```
     #[inline]
@@ -170,13 +207,13 @@ pub trait StrUtilsExt {
 
     /// Returns true if the given pattern matches a sub-slice of this string slice.
     /// Returns false if it does not.
-    /// 
+    ///
     /// The comparison is accent / case insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// assert!("Café Arabica".contains_ai_ci("cafe"));
     /// ```
     #[inline]
@@ -189,13 +226,13 @@ pub trait StrUtilsExt {
 
     /// Returns true if the given pattern matches a sub-slice of this string slice.
     /// Returns false if it does not.
-    /// 
+    ///
     /// The comparison is case insensitive.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use str_utils::StrUtilsExt;
-    /// 
+    ///
     /// assert!("Café Arabica".contains_ci("café"));
     /// ```
     #[inline]
@@ -279,6 +316,53 @@ impl StrUtilsExt for &str {
     {
         starts_with(self, pat, EqExt::eq_ci)
     }
+
+    fn no_accent(self) -> String
+    where
+        Self: Sized,
+    {
+        let mut s = String::with_capacity(self.len());
+
+        for c in self.chars() {
+            s.push_str(c.no_accent());
+        }
+
+        s
+    }
+
+    fn no_accent_lowercase(self) -> String
+    where
+        Self: Sized,
+    {
+        let mut s = String::with_capacity(self.len());
+
+        for c in self
+            .chars()
+            .flat_map(|c| c.no_accent().chars())
+            .flat_map(char::to_lowercase)
+        {
+            s.push(c);
+        }
+
+        s
+    }
+
+    fn no_accent_uppercase(self) -> String
+    where
+        Self: Sized,
+    {
+        let mut s = String::with_capacity(self.len());
+
+        for c in self
+            .chars()
+            .flat_map(|c| c.no_accent().chars())
+            .flat_map(char::to_uppercase)
+        {
+            s.push(c);
+        }
+
+        s
+    }
 }
 
 impl StrUtilsExt for &String {
@@ -352,6 +436,30 @@ impl StrUtilsExt for &String {
         Self: Sized,
     {
         starts_with(self, pat, EqExt::eq_ci)
+    }
+
+    #[inline]
+    fn no_accent(self) -> String
+    where
+        Self: Sized,
+    {
+        self.as_str().no_accent()
+    }
+
+    #[inline]
+    fn no_accent_lowercase(self) -> String
+    where
+        Self: Sized,
+    {
+        self.as_str().no_accent_lowercase()
+    }
+
+    #[inline]
+    fn no_accent_uppercase(self) -> String
+    where
+        Self: Sized,
+    {
+        self.as_str().no_accent_uppercase()
     }
 }
 

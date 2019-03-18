@@ -180,36 +180,36 @@ where
 /// This trait allow to do accent and case insensitive ordering.
 pub trait OrdExt<Rhs = Self> {
     /// Accent insensitive comparison.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use std::cmp::Ordering;
     /// use str_utils::cmp::OrdExt;
-    /// 
+    ///
     /// assert_eq!("abc".cmp_ai("àbc"), Ordering::Equal);
     /// assert_eq!("é".cmp_ai("e"), Ordering::Equal);
     /// ```
     fn cmp_ai(self, rhs: Rhs) -> Ordering;
 
     /// Accent / case insensitive comparison.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use std::cmp::Ordering;
     /// use str_utils::cmp::OrdExt;
-    /// 
+    ///
     /// assert_eq!("abc".cmp_ai_ci("Àbc"), Ordering::Equal);
     /// assert_eq!("é".cmp_ai_ci("E"), Ordering::Equal);
     /// ```
     fn cmp_ai_ci(self, rhs: Rhs) -> Ordering;
 
     /// Case insensitive comparison.
-    /// 
+    ///
     /// # Example
     /// ```
     /// use std::cmp::Ordering;
     /// use str_utils::cmp::OrdExt;
-    /// 
+    ///
     /// assert_eq!("abc".cmp_ci("Abc"), Ordering::Equal);
     /// assert_eq!("e".cmp_ci("E"), Ordering::Equal);
     /// ```
