@@ -319,17 +319,53 @@ fn char_eq_ci_works() {
 #[test]
 fn str_eq_ai_works() {
     assert!("abc".eq_ai("àbc"));
+    assert!("abc".to_owned().eq_ai("àbc"));
     assert!(!"abc".eq_ai("abca"));
 }
 
 #[test]
 fn str_eq_ai_ci_works() {
     assert!("abc".eq_ai_ci("ÀBc"));
+    assert!("abc".to_owned().eq_ai_ci("ÀBc"));
     assert!(!"abc".eq_ai_ci("abca"));
 }
 
 #[test]
 fn str_eq_ci_works() {
     assert!("abc".eq_ci("ABC"));
+    assert!("abc".to_owned().eq_ci("ABC"));
     assert!(!"abc".eq_ci("abca"));
+}
+
+#[test]
+fn char_cmp_ai_works() {
+    assert_eq!('a'.cmp_ai('à'), Ordering::Equal);
+}
+
+#[test]
+fn char_cmp_ai_ci_works() {
+    assert_eq!('a'.cmp_ai_ci('À'), Ordering::Equal);
+}
+
+#[test]
+fn char_cmp_ci_works() {
+    assert_eq!('a'.cmp_ci('A'), Ordering::Equal);
+}
+
+#[test]
+fn str_cmp_ai_works() {
+    assert_eq!("abc".cmp_ai("àbc"), Ordering::Equal);
+    assert_eq!("abc".to_owned().cmp_ai("àbc"), Ordering::Equal);
+}
+
+#[test]
+fn str_cmp_ai_ci_works() {
+    assert_eq!("abc".cmp_ai_ci("ÀBc"), Ordering::Equal);
+    assert_eq!("abc".to_owned().cmp_ai_ci("ÀBc"), Ordering::Equal);
+}
+
+#[test]
+fn str_cmp_ci_works() {
+    assert_eq!("abc".cmp_ci("ABC"), Ordering::Equal);
+    assert_eq!("abc".to_owned().cmp_ci("ABC"), Ordering::Equal);
 }

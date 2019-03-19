@@ -1,5 +1,9 @@
 [![Build Status](https://travis-ci.org/danylaporte/str_utils.svg?branch=master)](https://travis-ci.org/danylaporte/str_utils)
 
+[![codecov](https://codecov.io/gh/danylaporte/str_utils/branch/master/graph/badge.svg)](https://codecov.io/gh/danylaporte/str_utils)
+
+
+
 Multiple traits and utility functions around string and chars.
 
 ## Documentation

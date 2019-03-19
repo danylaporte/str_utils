@@ -523,3 +523,52 @@ where
         };
     }
 }
+
+#[test]
+fn ends_with_ai_works() {
+    assert!("Café".ends_with_ai("fe"));
+    assert!("Cafe".ends_with_ai("fé"));
+    assert!(!"Café".ends_with_ai("FE"));
+
+    assert!("Café".to_owned().ends_with_ai("fe"));
+}
+
+#[test]
+fn ends_with_ai_ci_works() {
+    assert!("Café".ends_with_ai_ci("FE"));
+    assert!("Cafe".ends_with_ai_ci("FÉ"));
+    assert!("CafÉ".ends_with_ai_ci("fe"));
+
+    assert!("Café".to_owned().ends_with_ai_ci("FE"));
+}
+
+#[test]
+fn ends_with_ci_works() {
+    assert!("Café".ends_with_ci("FÉ"));
+    assert!(!"Café".ends_with_ci("FE"));
+    assert!("Café".to_owned().ends_with_ci("FÉ"));
+}
+
+#[test]
+fn starts_with_ai_works() {
+    assert!("Café".starts_with_ai("Cafe"));
+    assert!("Cafe".starts_with_ai("Café"));
+    assert!(!"Café".starts_with_ai("CaFE"));
+    assert!("Café".to_owned().starts_with_ai("Cafe"));
+}
+
+#[test]
+fn starts_with_ai_ci_works() {
+    assert!("Café Arabica".starts_with_ai_ci("CaFE"));
+    assert!("Cafe Arabica".starts_with_ai_ci("CAFÉ"));
+    assert!("CafÉ Arabica".starts_with_ai_ci("Cafe"));
+
+    assert!("Café Arabica".to_owned().starts_with_ai_ci("CAFE"));
+}
+
+#[test]
+fn starts_with_ci_works() {
+    assert!("Café Arabica".starts_with_ci("CAFÉ"));
+    assert!(!"Café Arabica".starts_with_ci("CAFE"));
+    assert!("Café Arabica".to_owned().starts_with_ci("caFÉ"));
+}

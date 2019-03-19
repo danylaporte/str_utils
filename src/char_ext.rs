@@ -20,3 +20,9 @@ impl CharExt for char {
         unidecode_char(self)
     }
 }
+
+#[test]
+fn no_accent_works() {
+    assert_eq!('à'.no_accent(), "a");
+    assert_eq!('À'.no_accent(), "A");
+}
