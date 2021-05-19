@@ -1,4 +1,5 @@
 mod char_ext;
+pub mod char_map;
 pub mod cmp;
 mod str_utils_ext;
 
