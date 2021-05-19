@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["lower_no_accent_char","Convert a char to lowercase without accent."],["lower_no_accent_chars","Convert the Chars iterator to an iterator having all lowercase without accent."]],"struct":[["MappedChars","Map chars to other chars."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["char_map",""],["cmp","Comparison module for strings and chars"]],"trait":[["CharExt","A trait to remove accent on a char."],["StrUtilsExt","Trait for searching string with accent / case insensitive comparison."]]});
