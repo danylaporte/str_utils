@@ -26,7 +26,10 @@ fn mapped_table() -> MappedTable {
         chars.iter_mut().enumerate().for_each(|(index, c)| {
             *c = match char::from_u32(index as u32) {
                 Some(c) => {
-                    let mut iter = c.to_lowercase().nfd().filter(|c| c.is_alphanumeric());
+                    let mut iter = c
+                        .to_lowercase()
+                        .nfd()
+                        .filter(|c| c.is_ascii() || c.is_alphanumeric());
 
                     match (iter.next(), iter.next(), iter.next()) {
                         (Some(a), Some(b), Some(c)) => Mapped::C3(a, b, c),
@@ -50,6 +53,10 @@ fn test_accent_removal() {
     assert_eq!(
         "aei",
         &lower_no_accent_chars("àéï".chars()).collect::<String>()
+    );
+    assert_eq!(
+        "a.e i",
+        &lower_no_accent_chars("à.é ï".chars()).collect::<String>()
     );
     assert_eq!(
         "123",
