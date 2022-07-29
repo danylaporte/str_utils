@@ -1,6 +1,6 @@
 use super::{Mapped, MappedChars, MappedTable};
 use static_init::dynamic;
-use std::{char, str::Chars};
+use std::char;
 use unicode_normalization::UnicodeNormalization;
 
 /// Convert a char to lowercase without accent.
@@ -9,9 +9,9 @@ pub fn lower_no_accent_char(c: char) -> impl Iterator<Item = char> {
 }
 
 /// Convert the Chars iterator to an iterator having all lowercase without accent.
-pub fn lower_no_accent_chars(chars: Chars) -> MappedChars {
+pub fn lower_no_accent_chars<'a>(s: &'a str) -> MappedChars<'a> {
     MappedChars {
-        chars,
+        chars: s.chars(),
         mapped: Mapped::Empty,
         table: mapped_table(),
     }
@@ -50,17 +50,8 @@ fn mapped_table() -> MappedTable {
 
 #[test]
 fn test_accent_removal() {
-    assert_eq!(
-        "aei",
-        &lower_no_accent_chars("àéï".chars()).collect::<String>()
-    );
-    assert_eq!(
-        "a.e i",
-        &lower_no_accent_chars("à.é ï".chars()).collect::<String>()
-    );
-    assert_eq!(
-        "123",
-        &lower_no_accent_chars("123".chars()).collect::<String>()
-    );
-    assert_eq!("", &lower_no_accent_chars("".chars()).collect::<String>());
+    assert_eq!("aei", &lower_no_accent_chars("àéï").collect::<String>());
+    assert_eq!("a.e i", &lower_no_accent_chars("à.é ï").collect::<String>());
+    assert_eq!("123", &lower_no_accent_chars("123").collect::<String>());
+    assert_eq!("", &lower_no_accent_chars("").collect::<String>());
 }

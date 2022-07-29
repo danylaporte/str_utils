@@ -1,8 +1,7 @@
 mod lower_no_accent;
 
-use std::str::Chars;
-
 pub use lower_no_accent::*;
+use std::str::Chars;
 
 #[derive(Clone, Copy)]
 enum Mapped {
@@ -44,6 +43,8 @@ pub struct MappedChars<'a> {
     table: MappedTable,
 }
 
+impl<'a> Eq for MappedChars<'a> {}
+
 impl<'a> Iterator for MappedChars<'a> {
     type Item = char;
 
@@ -56,5 +57,23 @@ impl<'a> Iterator for MappedChars<'a> {
         let c = self.chars.next()?;
         self.mapped = self.table[c as usize];
         self.mapped.next()
+    }
+}
+
+impl<'a> PartialEq for MappedChars<'a> {
+    fn eq(&self, other: &Self) -> bool {
+        Iterator::eq(self.clone(), other.clone())
+    }
+}
+
+impl<'a> PartialOrd for MappedChars<'a> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl<'a> Ord for MappedChars<'a> {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        Iterator::cmp(self.clone(), other.clone())
     }
 }
