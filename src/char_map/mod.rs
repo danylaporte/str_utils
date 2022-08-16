@@ -1,5 +1,7 @@
+mod lower;
 mod lower_no_accent;
 
+pub use lower::*;
 pub use lower_no_accent::*;
 use std::str::Chars;
 
