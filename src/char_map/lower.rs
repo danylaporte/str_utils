@@ -25,7 +25,7 @@ impl<'a> Deref for Lower<'a> {
     type Target = str;
 
     fn deref(&self) -> &Self::Target {
-        &*self.0
+        &self.0
     }
 }
 
@@ -39,7 +39,7 @@ where
 }
 
 impl<'a> Lower<'a> {
-    fn iter<'b>(&'b self) -> impl Iterator<Item = char> + 'b {
+    fn iter(&self) -> impl Iterator<Item = char> + '_ {
         self.0.chars().flat_map(|c| c.to_lowercase())
     }
 }

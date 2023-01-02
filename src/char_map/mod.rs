@@ -5,44 +5,11 @@ pub use lower::*;
 pub use lower_no_accent::*;
 use std::str::Chars;
 
-#[derive(Clone, Copy)]
-enum Mapped {
-    Empty,
-    C1(char),
-    C2(char, char),
-    C3(char, char, char),
-}
-
-impl Iterator for Mapped {
-    type Item = char;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match *self {
-            Self::Empty => None,
-            Self::C1(a) => {
-                *self = Self::Empty;
-                Some(a)
-            }
-            Self::C2(a, b) => {
-                *self = Self::C1(b);
-                Some(a)
-            }
-            Self::C3(a, b, c) => {
-                *self = Self::C2(b, c);
-                Some(a)
-            }
-        }
-    }
-}
-
-type MappedTable = &'static [Mapped];
-
 /// Map chars to other chars.
 #[derive(Clone)]
 pub struct MappedChars<'a> {
     chars: Chars<'a>,
-    mapped: Mapped,
-    table: MappedTable,
+    mapped: std::str::Chars<'static>,
 }
 
 impl<'a> Eq for MappedChars<'a> {}
@@ -50,15 +17,21 @@ impl<'a> Eq for MappedChars<'a> {}
 impl<'a> Iterator for MappedChars<'a> {
     type Item = char;
 
+    #[allow(clippy::while_let_on_iterator)]
     fn next(&mut self) -> Option<Self::Item> {
-        let c = self.mapped.next();
-        if c.is_some() {
-            return c;
+        if let Some(c) = self.mapped.next() {
+            return Some(c);
         }
 
-        let c = self.chars.next()?;
-        self.mapped = self.table[c as usize];
-        self.mapped.next()
+        while let Some(c) = self.chars.next() {
+            self.mapped = lower_no_accent_char(c);
+
+            if let Some(c) = self.mapped.next() {
+                return Some(c);
+            }
+        }
+
+        None
     }
 }
 
