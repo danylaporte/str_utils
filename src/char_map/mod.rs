@@ -1,6 +1,8 @@
+mod human_cmp;
 mod lower;
 mod lower_no_accent;
 
+pub use human_cmp::human_cmp;
 pub use lower::*;
 pub use lower_no_accent::*;
 use std::str::Chars;
