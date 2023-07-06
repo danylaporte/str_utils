@@ -41,7 +41,7 @@ impl<'a> Iterator for Iter<'a> {
                 let is_num = c.is_numeric();
 
                 let s = if let Some(end) = self.take_while(is_num) {
-                    &self.s[start..=end]
+                    &self.s[start..end]
                 } else {
                     &self.s[start..]
                 };
@@ -116,4 +116,8 @@ fn test_human_cmp() {
         human_cmp("Radka Vlá?elová", "Radka Vlá?elová"),
         Ordering::Equal
     );
+
+    assert_eq!(human_cmp("4é", "4e"), Ordering::Equal);
+    assert_eq!(human_cmp("4ç", "4c"), Ordering::Equal);
+    assert_eq!(human_cmp("4Ç", "4C"), Ordering::Equal);
 }
