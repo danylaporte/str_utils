@@ -13,7 +13,7 @@ fn main() {
 
     let mut chars = String::with_capacity(9);
 
-    (0..=(char::MAX as u32)).into_iter().for_each(|index| {
+    (0..=(char::MAX as u32)).for_each(|index| {
         chars.clear();
 
         let mut buf = [0u8; 10];

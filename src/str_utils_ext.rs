@@ -1,5 +1,5 @@
-use super::cmp::EqExt;
-use super::CharExt;
+use super::{cmp::EqExt, CharExt};
+use std::borrow::Cow;
 
 /// Trait for searching string with accent / case insensitive comparison.
 pub trait StrUtilsExt {
@@ -14,9 +14,7 @@ pub trait StrUtilsExt {
     ///
     /// assert!("Press Café".ends_with_ai("Cafe"));
     /// ```
-    fn ends_with_ai(self, pat: &str) -> bool
-    where
-        Self: Sized;
+    fn ends_with_ai(&self, pat: &str) -> bool;
 
     /// Returns true if the given pattern matches a suffix of this string slice.
     /// Returns false if it does not.
@@ -29,9 +27,7 @@ pub trait StrUtilsExt {
     ///
     /// assert!("Press Café".ends_with_ai_ci("cafe"));
     /// ```
-    fn ends_with_ai_ci(self, pat: &str) -> bool
-    where
-        Self: Sized;
+    fn ends_with_ai_ci(&self, pat: &str) -> bool;
 
     /// Returns true if the given pattern matches a suffix of this string slice.
     /// Returns false if it does not.
@@ -44,9 +40,7 @@ pub trait StrUtilsExt {
     ///
     /// assert!("Press Cafe".ends_with_ci("cafe"));
     /// ```
-    fn ends_with_ci(self, pat: &str) -> bool
-    where
-        Self: Sized;
+    fn ends_with_ci(&self, pat: &str) -> bool;
 
     /// Returns the byte index of the first character of this string slice that matches the pattern.
     /// Returns None if the pattern doesn't match.
@@ -63,9 +57,7 @@ pub trait StrUtilsExt {
     /// assert_eq!(s.find_ai("é"), Some(4));
     /// assert_eq!(s.find_ai("Leopard"), Some(13));
     /// ```
-    fn find_ai(self, pat: &str) -> Option<usize>
-    where
-        Self: Sized;
+    fn find_ai(&self, pat: &str) -> Option<usize>;
 
     /// Returns the byte index of the first character of this string slice that matches the pattern.
     /// Returns None if the pattern doesn't match.
@@ -82,9 +74,7 @@ pub trait StrUtilsExt {
     /// assert_eq!(s.find_ai_ci("É"), Some(4));
     /// assert_eq!(s.find_ai_ci("leopard"), Some(13));
     /// ```
-    fn find_ai_ci(self, pat: &str) -> Option<usize>
-    where
-        Self: Sized;
+    fn find_ai_ci(&self, pat: &str) -> Option<usize>;
 
     /// Returns the byte index of the first character of this string slice that matches the pattern.
     /// Returns None if the pattern doesn't match.
@@ -101,9 +91,7 @@ pub trait StrUtilsExt {
     /// assert_eq!(s.find_ci("E"), Some(4));
     /// assert_eq!(s.find_ci("léopard"), Some(13));
     /// ```
-    fn find_ci(self, pat: &str) -> Option<usize>
-    where
-        Self: Sized;
+    fn find_ci(&self, pat: &str) -> Option<usize>;
 
     /// Returns true if the given pattern matches a prefix of this string slice.
     /// Returns false if it does not.
@@ -116,9 +104,7 @@ pub trait StrUtilsExt {
     ///
     /// assert!("Café Arabica".starts_with_ai("Cafe"));
     /// ```
-    fn starts_with_ai(self, pat: &str) -> bool
-    where
-        Self: Sized;
+    fn starts_with_ai(&self, pat: &str) -> bool;
 
     /// Returns true if the given pattern matches a prefix of this string slice.
     /// Returns false if it does not.
@@ -131,9 +117,7 @@ pub trait StrUtilsExt {
     ///
     /// assert!("Café Arabica".starts_with_ai_ci("cafe"));
     /// ```
-    fn starts_with_ai_ci(self, pat: &str) -> bool
-    where
-        Self: Sized;
+    fn starts_with_ai_ci(&self, pat: &str) -> bool;
 
     /// Returns true if the given pattern matches a prefix of this string slice.
     /// Returns false if it does not.
@@ -146,9 +130,7 @@ pub trait StrUtilsExt {
     ///
     /// assert!("Cafe Arabica".starts_with_ci("cafe"));
     /// ```
-    fn starts_with_ci(self, pat: &str) -> bool
-    where
-        Self: Sized;
+    fn starts_with_ci(&self, pat: &str) -> bool;
 
     /// Transform into a no accent String.
     ///
@@ -158,9 +140,7 @@ pub trait StrUtilsExt {
     ///
     /// assert_eq!("Café Arabica".no_accent(), "Cafe Arabica");
     /// ```
-    fn no_accent(self) -> String
-    where
-        Self: Sized;
+    fn no_accent(&self) -> String;
 
     /// Transform into a no accent lowercase String.
     ///
@@ -170,9 +150,7 @@ pub trait StrUtilsExt {
     ///
     /// assert_eq!("Café Arabica".no_accent_lowercase(), "cafe arabica");
     /// ```
-    fn no_accent_lowercase(self) -> String
-    where
-        Self: Sized;
+    fn no_accent_lowercase(&self) -> String;
 
     /// Transform into a no accent uppercase String.
     ///
@@ -182,9 +160,7 @@ pub trait StrUtilsExt {
     ///
     /// assert_eq!("Café Arabica".no_accent_uppercase(), "CAFE ARABICA");
     /// ```
-    fn no_accent_uppercase(self) -> String
-    where
-        Self: Sized;
+    fn no_accent_uppercase(&self) -> String;
 
     /// Returns true if the given pattern matches a sub-slice of this string slice.
     /// Returns false if it does not.
@@ -198,10 +174,7 @@ pub trait StrUtilsExt {
     /// assert!("Café Arabica".contains_ai("Cafe"));
     /// ```
     #[inline]
-    fn contains_ai(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn contains_ai(&self, pat: &str) -> bool {
         self.find_ai(pat).is_some()
     }
 
@@ -217,10 +190,7 @@ pub trait StrUtilsExt {
     /// assert!("Café Arabica".contains_ai_ci("cafe"));
     /// ```
     #[inline]
-    fn contains_ai_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn contains_ai_ci(&self, pat: &str) -> bool {
         self.find_ai_ci(pat).is_some()
     }
 
@@ -236,91 +206,61 @@ pub trait StrUtilsExt {
     /// assert!("Café Arabica".contains_ci("café"));
     /// ```
     #[inline]
-    fn contains_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn contains_ci(&self, pat: &str) -> bool {
         self.find_ci(pat).is_some()
     }
+
+    /// truncate a string based on chars count instead of bytes.
+    fn truncate_chars(&self, max_chars: usize) -> Cow<str>;
 }
 
-impl StrUtilsExt for &str {
+impl StrUtilsExt for str {
     #[inline]
-    fn ends_with_ai(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn ends_with_ai(&self, pat: &str) -> bool {
         ends_with(self, pat, EqExt::eq_ai)
     }
 
     #[inline]
-    fn ends_with_ai_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn ends_with_ai_ci(&self, pat: &str) -> bool {
         ends_with(self, pat, EqExt::eq_ai_ci)
     }
 
     #[inline]
-    fn ends_with_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn ends_with_ci(&self, pat: &str) -> bool {
         ends_with(self, pat, EqExt::eq_ci)
     }
 
     #[inline]
-    fn find_ai(self, pat: &str) -> Option<usize>
-    where
-        Self: Sized,
-    {
+    fn find_ai(&self, pat: &str) -> Option<usize> {
         find_str(self, pat, EqExt::eq_ai)
     }
 
     #[inline]
-    fn find_ai_ci(self, pat: &str) -> Option<usize>
-    where
-        Self: Sized,
-    {
+    fn find_ai_ci(&self, pat: &str) -> Option<usize> {
         find_str(self, pat, EqExt::eq_ai_ci)
     }
 
     #[inline]
-    fn find_ci(self, pat: &str) -> Option<usize>
-    where
-        Self: Sized,
-    {
+    fn find_ci(&self, pat: &str) -> Option<usize> {
         find_str(self, pat, EqExt::eq_ci)
     }
 
     #[inline]
-    fn starts_with_ai(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn starts_with_ai(&self, pat: &str) -> bool {
         starts_with(self, pat, EqExt::eq_ai)
     }
 
     #[inline]
-    fn starts_with_ai_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn starts_with_ai_ci(&self, pat: &str) -> bool {
         starts_with(self, pat, EqExt::eq_ai_ci)
     }
 
     #[inline]
-    fn starts_with_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn starts_with_ci(&self, pat: &str) -> bool {
         starts_with(self, pat, EqExt::eq_ci)
     }
 
-    fn no_accent(self) -> String
-    where
-        Self: Sized,
-    {
+    fn no_accent(&self) -> String {
         let mut s = String::with_capacity(self.len());
 
         for c in self.chars() {
@@ -330,10 +270,7 @@ impl StrUtilsExt for &str {
         s
     }
 
-    fn no_accent_lowercase(self) -> String
-    where
-        Self: Sized,
-    {
+    fn no_accent_lowercase(&self) -> String {
         let mut s = String::with_capacity(self.len());
 
         for c in self
@@ -347,10 +284,7 @@ impl StrUtilsExt for &str {
         s
     }
 
-    fn no_accent_uppercase(self) -> String
-    where
-        Self: Sized,
-    {
+    fn no_accent_uppercase(&self) -> String {
         let mut s = String::with_capacity(self.len());
 
         for c in self
@@ -363,103 +297,78 @@ impl StrUtilsExt for &str {
 
         s
     }
+
+    fn truncate_chars(&self, max_chars: usize) -> Cow<str> {
+        Cow::Borrowed(match self.char_indices().nth(max_chars) {
+            None => self,
+            Some((idx, _)) => &self[..idx],
+        })
+    }
 }
 
-impl StrUtilsExt for &String {
+impl StrUtilsExt for String {
     #[inline]
-    fn ends_with_ai(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn ends_with_ai(&self, pat: &str) -> bool {
         ends_with(self, pat, EqExt::eq_ai)
     }
 
     #[inline]
-    fn ends_with_ai_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn ends_with_ai_ci(&self, pat: &str) -> bool {
         ends_with(self, pat, EqExt::eq_ai_ci)
     }
 
     #[inline]
-    fn ends_with_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn ends_with_ci(&self, pat: &str) -> bool {
         ends_with(self, pat, EqExt::eq_ci)
     }
 
     #[inline]
-    fn find_ai(self, pat: &str) -> Option<usize>
-    where
-        Self: Sized,
-    {
+    fn find_ai(&self, pat: &str) -> Option<usize> {
         find_str(self, pat, EqExt::eq_ai)
     }
 
     #[inline]
-    fn find_ai_ci(self, pat: &str) -> Option<usize>
-    where
-        Self: Sized,
-    {
+    fn find_ai_ci(&self, pat: &str) -> Option<usize> {
         find_str(self, pat, EqExt::eq_ai_ci)
     }
 
     #[inline]
-    fn find_ci(self, pat: &str) -> Option<usize>
-    where
-        Self: Sized,
-    {
+    fn find_ci(&self, pat: &str) -> Option<usize> {
         find_str(self, pat, EqExt::eq_ci)
     }
 
     #[inline]
-    fn starts_with_ai(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn starts_with_ai(&self, pat: &str) -> bool {
         starts_with(self, pat, EqExt::eq_ai)
     }
 
     #[inline]
-    fn starts_with_ai_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn starts_with_ai_ci(&self, pat: &str) -> bool {
         starts_with(self, pat, EqExt::eq_ai_ci)
     }
 
     #[inline]
-    fn starts_with_ci(self, pat: &str) -> bool
-    where
-        Self: Sized,
-    {
+    fn starts_with_ci(&self, pat: &str) -> bool {
         starts_with(self, pat, EqExt::eq_ci)
     }
 
     #[inline]
-    fn no_accent(self) -> String
-    where
-        Self: Sized,
-    {
+    fn no_accent(&self) -> String {
         self.as_str().no_accent()
     }
 
     #[inline]
-    fn no_accent_lowercase(self) -> String
-    where
-        Self: Sized,
-    {
+    fn no_accent_lowercase(&self) -> String {
         self.as_str().no_accent_lowercase()
     }
 
     #[inline]
-    fn no_accent_uppercase(self) -> String
-    where
-        Self: Sized,
-    {
+    fn no_accent_uppercase(&self) -> String {
         self.as_str().no_accent_uppercase()
+    }
+
+    fn truncate_chars(&self, max_chars: usize) -> Cow<str> {
+        self.as_str().truncate_chars(max_chars)
     }
 }
 

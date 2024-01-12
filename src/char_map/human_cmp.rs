@@ -93,7 +93,7 @@ impl<'a> Ord for WordOrNumber<'a> {
 
                 l.len().cmp(&r.len()).then_with(|| l.cmp(r))
             }
-            (Self::Number(l), Self::Other(r)) | (Self::Other(l), Self::Number(r)) => l.cmp(&r),
+            (Self::Number(l), Self::Other(r)) | (Self::Other(l), Self::Number(r)) => l.cmp(r),
             (Self::Other(l), Self::Other(r)) => {
                 lower_no_accent_chars(l).cmp(lower_no_accent_chars(r))
             }
