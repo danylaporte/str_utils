@@ -6,7 +6,12 @@ edition = "2021"
 publish = false
 
 [dependencies]
+serde = { version = "1", optional = true }
 unidecode = "0.3"
+
+[dev-dependencies]
+serde = { version = "1" }
+serde_json = { version = "1" }
 
 [build-dependencies]
 unicode-normalization = "0.1"
