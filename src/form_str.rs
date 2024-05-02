@@ -9,7 +9,7 @@ use std::{
 pub type Result<T> = std::result::Result<T, FormatErr>;
 
 /// A `Box<str>` that ensure a format.
-/// 
+///
 /// The generic parameter is a Format to enforce.
 #[derive(Clone)]
 pub struct FormStr<F>(Box<str>, F);
@@ -202,14 +202,18 @@ impl FormatDefault for () {}
 /// Errors that can occur during formating.
 #[derive(Clone, Copy, PartialEq)]
 pub enum FormatErr {
-    TooLong,
+    InvalidChar,
+    MaxLen,
+    MinLen,
 }
 
 impl Debug for FormatErr {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::TooLong => f.write_str("String too long"),
-        }
+        f.write_str(match self {
+            Self::InvalidChar => "InvalidChar",
+            Self::MaxLen => "MaxLen",
+            Self::MinLen => "MinLen",
+        })
     }
 }
 
@@ -223,6 +227,48 @@ impl std::error::Error for FormatErr {}
 
 pub mod formats {
     use super::*;
+
+    #[derive(Clone, Copy, Default)]
+    pub struct Filename<F>(pub F);
+
+    impl<F: Format> Format for Filename<F> {
+        fn format<'a>(&self, s: Cow<'a, str>) -> Result<Cow<'a, str>> {
+            let s = self.0.format(s)?;
+
+            if s.chars().any(|c| {
+                c.is_control()
+                    || (c as u32) < 31
+                    || c == '<'
+                    || c == '>'
+                    || c == ':'
+                    || c == '"'
+                    || c == '/'
+                    || c == '\\'
+                    || c == '|'
+                    || c == '?'
+                    || c == '*'
+            }) || s.trim_end().ends_with('.')
+            {
+                return Err(FormatErr::InvalidChar);
+            }
+
+            let reserved = [
+                "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7",
+                "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8",
+                "LPT9",
+            ];
+            
+            let t = s.trim().to_ascii_uppercase();
+
+            if reserved.contains(&&*t) {
+                return Err(FormatErr::InvalidChar);
+            }
+
+            Ok(s)
+        }
+    }
+
+    impl<F: FormatDefault> FormatDefault for Filename<F> {}
 
     /// Makes every chars lower.
     #[derive(Clone, Copy, Default)]
@@ -248,24 +294,34 @@ pub mod formats {
                 return Ok(s);
             }
 
-            let mut new = String::with_capacity(N);
-            let mut count = 0;
+            let count = s.chars().take(N + 1).count();
 
-            for c in s.chars() {
-                new.push(c);
-
-                count += 1;
-
-                if count > N {
-                    return Err(FormatErr::TooLong);
-                }
+            if count > N {
+                Err(FormatErr::MaxLen)
+            } else {
+                Ok(s)
             }
-
-            Ok(Cow::Owned(new))
         }
     }
 
     impl<const N: usize, F: FormatDefault> FormatDefault for MaxLen<N, F> {}
+
+    /// Enforce a minimum length, returns an error if not matching.
+    #[derive(Clone, Copy, Default)]
+    pub struct MinLen<const N: usize, F>(pub F);
+
+    impl<const N: usize, F: Format> Format for MinLen<N, F> {
+        fn format<'a>(&self, s: Cow<'a, str>) -> Result<Cow<'a, str>> {
+            let s = self.0.format(s)?;
+            let count = s.chars().take(N).count();
+
+            if count >= N {
+                Ok(s)
+            } else {
+                Err(FormatErr::MinLen)
+            }
+        }
+    }
 
     /// Trim whitespace chars.
     #[derive(Clone, Copy, Default)]
@@ -300,6 +356,11 @@ pub mod formats {
 
         assert!(FormStr::<C>::new(" Hello").is_err());
         assert_eq!(&*FormStr::<C>::new(" Hel").unwrap(), "hel");
+
+        type D = Lower<MinLen<1, MaxLen<3, Trim<()>>>>;
+
+        assert!(FormStr::<D>::new(" ").is_err());
+        assert_eq!(&*FormStr::<D>::new(" ABC").unwrap(), "abc");
     }
 
     #[test]
