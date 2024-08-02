@@ -203,7 +203,7 @@ impl FormatDefault for () {}
 #[derive(Clone, Copy, PartialEq)]
 pub enum FormatErr {
     InvalidChar,
-    MaxLen,
+    MaxLen(usize),
     MinLen,
 }
 
@@ -211,7 +211,7 @@ impl Debug for FormatErr {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
             Self::InvalidChar => "InvalidChar",
-            Self::MaxLen => "MaxLen",
+            Self::MaxLen(_) => "MaxLen",
             Self::MinLen => "MinLen",
         })
     }
@@ -257,7 +257,7 @@ pub mod formats {
                 "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8",
                 "LPT9",
             ];
-            
+
             let t = s.trim().to_ascii_uppercase();
 
             if reserved.contains(&&*t) {
@@ -297,7 +297,7 @@ pub mod formats {
             let count = s.chars().take(N + 1).count();
 
             if count > N {
-                Err(FormatErr::MaxLen)
+                Err(FormatErr::MaxLen(N))
             } else {
                 Ok(s)
             }
