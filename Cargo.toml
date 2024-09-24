@@ -10,8 +10,13 @@ serde = { version = "1", optional = true }
 unidecode = "0.3"
 
 [dev-dependencies]
+criterion = "0.5"
 serde = { version = "1" }
 serde_json = { version = "1" }
 
 [build-dependencies]
 unicode-normalization = "0.1"
+
+[[bench]]
+name = "eq_ext"
+harness = false

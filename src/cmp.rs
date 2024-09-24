@@ -111,7 +111,7 @@ impl EqExt for &str {
     where
         Self: Sized,
     {
-        self == r || eq_chars(self.chars(), r.chars(), EqExt::eq_ai)
+        eq_chars(self.chars(), r.chars(), EqExt::eq_ai)
     }
 
     #[inline]
@@ -119,7 +119,7 @@ impl EqExt for &str {
     where
         Self: Sized,
     {
-        self == r || eq_chars(self.chars(), r.chars(), EqExt::eq_ai_ci)
+        eq_chars(self.chars(), r.chars(), EqExt::eq_ai_ci)
     }
 
     #[inline]
@@ -127,7 +127,7 @@ impl EqExt for &str {
     where
         Self: Sized,
     {
-        self == r || eq_chars(self.chars(), r.chars(), EqExt::eq_ci)
+        eq_chars(self.chars(), r.chars(), EqExt::eq_ci)
     }
 }
 
@@ -157,6 +157,7 @@ impl EqExt<&str> for &String {
     }
 }
 
+#[inline]
 fn eq_chars<F>(mut l: Chars, mut r: Chars, f: F) -> bool
 where
     F: Fn(char, char) -> bool,
