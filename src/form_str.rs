@@ -1,3 +1,4 @@
+use crate::fs::{validate_filename, FsError};
 use std::{
     borrow::Cow,
     cmp::Ordering,
@@ -202,18 +203,18 @@ impl FormatDefault for () {}
 /// Errors that can occur during formating.
 #[derive(Clone, Copy, PartialEq)]
 pub enum FormatErr {
-    InvalidChar,
+    Fs(FsError),
     MaxLen(usize),
     MinLen,
 }
 
 impl Debug for FormatErr {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        f.write_str(match self {
-            Self::InvalidChar => "InvalidChar",
-            Self::MaxLen(_) => "MaxLen",
-            Self::MinLen => "MinLen",
-        })
+        match self {
+            Self::Fs(e) => Debug::fmt(e, f),
+            Self::MaxLen(l) => write!(f, "max len {l}"),
+            Self::MinLen => f.write_str("min len"),
+        }
     }
 }
 
@@ -227,48 +228,32 @@ impl std::error::Error for FormatErr {}
 
 pub mod formats {
     use super::*;
+    use crate::fs::format_sub_path;
 
     #[derive(Clone, Copy, Default)]
-    pub struct Filename<F>(pub F);
+    pub struct Filename;
 
-    impl<F: Format> Format for Filename<F> {
+    impl Format for Filename {
         fn format<'a>(&self, s: Cow<'a, str>) -> Result<Cow<'a, str>> {
-            let s = self.0.format(s)?;
-
-            if s.chars().any(|c| {
-                c.is_control()
-                    || (c as u32) < 31
-                    || c == '<'
-                    || c == '>'
-                    || c == ':'
-                    || c == '"'
-                    || c == '/'
-                    || c == '\\'
-                    || c == '|'
-                    || c == '?'
-                    || c == '*'
-            }) || s.trim_end().ends_with('.')
-            {
-                return Err(FormatErr::InvalidChar);
+            match s {
+                Cow::Borrowed(s) => match validate_filename(s) {
+                    Ok(v) => Ok(Cow::Borrowed(v)),
+                    Err(e) => Err(FormatErr::Fs(e)),
+                },
+                Cow::Owned(s) => match validate_filename(&s) {
+                    // try to avoid allocating a new string if the string is already trimmed.
+                    Ok(v) => Ok(if v.len() == s.len() {
+                        Cow::Owned(s)
+                    } else {
+                        Cow::Owned(v.to_string())
+                    }),
+                    Err(e) => Err(FormatErr::Fs(e)),
+                },
             }
-
-            let reserved = [
-                "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7",
-                "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8",
-                "LPT9",
-            ];
-
-            let t = s.trim().to_ascii_uppercase();
-
-            if reserved.contains(&&*t) {
-                return Err(FormatErr::InvalidChar);
-            }
-
-            Ok(s)
         }
     }
 
-    impl<F: FormatDefault> FormatDefault for Filename<F> {}
+    impl FormatDefault for Filename {}
 
     /// Makes every chars lower.
     #[derive(Clone, Copy, Default)]
@@ -319,6 +304,19 @@ pub mod formats {
                 Ok(s)
             } else {
                 Err(FormatErr::MinLen)
+            }
+        }
+    }
+
+    /// Enforce a sub path, such as `sub_dir/text.txt`
+    #[derive(Clone, Copy, Default)]
+    pub struct SubPath;
+
+    impl Format for SubPath {
+        fn format<'a>(&self, s: Cow<'a, str>) -> Result<Cow<'a, str>> {
+            match format_sub_path(&s) {
+                Ok(s) => Ok(Cow::Owned(s)),
+                Err(e) => Err(FormatErr::Fs(e)),
             }
         }
     }
