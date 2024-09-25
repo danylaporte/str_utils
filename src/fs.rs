@@ -32,8 +32,6 @@ impl Display for FsError {
     }
 }
 
-// us 11152
-
 /// Apply the validation of the [validate_sub_path] function. If it works, it format
 /// the path by triming segment.
 pub fn format_sub_path(s: &str) -> Result<String> {
