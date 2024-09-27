@@ -31,10 +31,17 @@ pub fn validate_accepted_url_chars(s: &str) -> Result<()> {
 
     for c in s.chars() {
         //ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%
-        if !c.is_ascii_alphanumeric() && VALID_CHARS.contains(&c) {
+        if !c.is_ascii_alphanumeric() && !VALID_CHARS.contains(&c) {
             return Err(UrlError::InvalidChar(c));
         }
     }
 
     Ok(())
+}
+
+#[test]
+fn test_validate_accepted_url_chars() {
+    assert!(
+        validate_accepted_url_chars("http://est.jon/v?q=param&other=param%20#test=123").is_ok()
+    );
 }
