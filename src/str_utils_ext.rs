@@ -1,5 +1,4 @@
 use super::{cmp::EqExt, CharExt};
-use std::borrow::Cow;
 
 /// Trait for searching string with accent / case insensitive comparison.
 pub trait StrUtilsExt {
@@ -211,7 +210,7 @@ pub trait StrUtilsExt {
     }
 
     /// truncate a string based on chars count instead of bytes.
-    fn truncate_chars(&self, max_chars: usize) -> Cow<str>;
+    fn truncate_chars(&self, max_chars: usize) -> &str;
 }
 
 impl StrUtilsExt for str {
@@ -298,11 +297,11 @@ impl StrUtilsExt for str {
         s
     }
 
-    fn truncate_chars(&self, max_chars: usize) -> Cow<str> {
-        Cow::Borrowed(match self.char_indices().nth(max_chars) {
+    fn truncate_chars(&self, max_chars: usize) -> &str {
+        match self.char_indices().nth(max_chars) {
             None => self,
             Some((idx, _)) => &self[..idx],
-        })
+        }
     }
 }
 
@@ -367,7 +366,7 @@ impl StrUtilsExt for String {
         self.as_str().no_accent_uppercase()
     }
 
-    fn truncate_chars(&self, max_chars: usize) -> Cow<str> {
+    fn truncate_chars(&self, max_chars: usize) -> &str {
         self.as_str().truncate_chars(max_chars)
     }
 }
