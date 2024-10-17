@@ -3,6 +3,7 @@ pub mod char_map;
 pub mod cmp;
 pub mod form_str;
 pub mod fs;
+pub mod str_ci;
 mod str_utils_ext;
 pub mod url;
 

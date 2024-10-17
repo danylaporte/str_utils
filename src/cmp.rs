@@ -3,6 +3,7 @@
 //! This module regroup comparison trait for equality and ordering.
 
 use std::cmp::Ordering;
+use std::hash::{Hash, Hasher};
 use std::str::Chars;
 use unidecode::unidecode_char;
 
@@ -60,6 +61,12 @@ pub trait EqExt<Rhs = Self> {
     fn eq_ci(self, other: Rhs) -> bool
     where
         Self: Sized;
+
+    fn hash_ai<H: Hasher>(self, state: &mut H);
+
+    fn hash_ai_ci<H: Hasher>(self, state: &mut H);
+
+    fn hash_ci<H: Hasher>(self, state: &mut H);
 }
 
 impl EqExt for char {
@@ -103,6 +110,22 @@ impl EqExt for char {
     {
         self == r || self.to_lowercase().eq(r.to_lowercase())
     }
+
+    fn hash_ai<H: Hasher>(self, state: &mut H) {
+        unidecode_char(self).hash(state);
+    }
+
+    fn hash_ai_ci<H: Hasher>(self, state: &mut H) {
+        for c in unidecode_char(self).chars().flat_map(|c| c.to_lowercase()) {
+            c.hash(state);
+        }
+    }
+
+    fn hash_ci<H: Hasher>(self, state: &mut H) {
+        for c in self.to_lowercase() {
+            c.hash(state);
+        }
+    }
 }
 
 impl EqExt for &str {
@@ -129,6 +152,18 @@ impl EqExt for &str {
     {
         eq_chars(self.chars(), r.chars(), EqExt::eq_ci)
     }
+
+    fn hash_ai<H: Hasher>(self, state: &mut H) {
+        self.chars().for_each(|c| c.hash_ai(state));
+    }
+
+    fn hash_ai_ci<H: Hasher>(self, state: &mut H) {
+        self.chars().for_each(|c| c.hash_ai_ci(state));
+    }
+
+    fn hash_ci<H: Hasher>(self, state: &mut H) {
+        self.chars().for_each(|c| c.hash_ci(state));
+    }
 }
 
 impl EqExt<&str> for &String {
@@ -154,6 +189,18 @@ impl EqExt<&str> for &String {
         Self: Sized,
     {
         self.as_str().eq_ci(r)
+    }
+
+    fn hash_ai<H: Hasher>(self, state: &mut H) {
+        self.chars().for_each(|c| c.hash_ai(state));
+    }
+
+    fn hash_ai_ci<H: Hasher>(self, state: &mut H) {
+        self.chars().for_each(|c| c.hash_ai_ci(state));
+    }
+
+    fn hash_ci<H: Hasher>(self, state: &mut H) {
+        self.chars().for_each(|c| c.hash_ci(state));
     }
 }
 

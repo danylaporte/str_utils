@@ -48,6 +48,13 @@ impl<F: Format> FormStr<F> {
     }
 }
 
+impl<F> AsRef<str> for FormStr<F> {
+    #[inline]
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
 impl<F> Debug for FormStr<F> {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
