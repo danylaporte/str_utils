@@ -48,6 +48,12 @@ impl Display for StrCi {
 
 impl Eq for StrCi {}
 
+impl From<&StrCi> for StringCi {
+    fn from(value: &StrCi) -> Self {
+        StringCi(value.0.to_string())
+    }
+}
+
 impl Hash for StrCi {
     #[inline]
     fn hash<H: Hasher>(&self, state: &mut H) {
@@ -132,6 +138,12 @@ impl Display for StringCi {
 
 impl Eq for StringCi {}
 
+impl From<&str> for StringCi {
+    fn from(value: &str) -> Self {
+        Self(value.to_string())
+    }
+}
+
 impl Hash for StringCi {
     #[inline]
     fn hash<H: Hasher>(&self, state: &mut H) {
@@ -143,5 +155,63 @@ impl PartialEq for StringCi {
     #[inline]
     fn eq(&self, other: &Self) -> bool {
         self.0.deref().eq_ci(other.0.deref())
+    }
+}
+
+pub enum StringCi1<'a, A> {
+    StrIc(&'a StrCi, A),
+    StringIc(StringCi, A),
+}
+
+impl<'a, A> StringCi1<'a, A> {
+    fn as_tuple(&self) -> (&StrCi, &A) {
+        match self {
+            Self::StrIc(s, a) => (*s, a),
+            Self::StringIc(s, a) => (s.as_str_ci(), a),
+        }
+    }
+}
+
+impl<'a, A: Eq> Eq for StringCi1<'a, A> {}
+
+impl<'a, A> Hash for StringCi1<'a, A>
+where
+    A: Hash,
+{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.as_tuple().hash(state);
+    }
+}
+
+impl<'a, A: PartialEq> PartialEq for StringCi1<'a, A> {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_tuple().eq(&other.as_tuple())
+    }
+}
+
+impl<'a, A, B> From<(StringCi, A)> for StringCi1<'static, B>
+where
+    B: From<A>,
+{
+    fn from((s, a): (StringCi, A)) -> Self {
+        StringCi1::StringIc(s, a.into())
+    }
+}
+
+impl<'a, A, B> From<(&'a StrCi, A)> for StringCi1<'static, B>
+where
+    B: From<A>,
+{
+    fn from((s, a): (&'a StrCi, A)) -> Self {
+        StringCi1::StringIc(s.into(), a.into())
+    }
+}
+
+impl<'a, A, B> From<(&'a str, A)> for StringCi1<'static, B>
+where
+    B: From<A>,
+{
+    fn from((s, a): (&'a str, A)) -> Self {
+        StringCi1::StringIc(StringCi(s.to_string()), a.into())
     }
 }
