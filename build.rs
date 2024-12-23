@@ -16,7 +16,7 @@ fn main() {
     (0..=(char::MAX as u32)).for_each(|index| {
         chars.clear();
 
-        let mut buf = [0u8; 10];
+        let mut buf = [0u8; 13];
 
         if let Some(c) = char::from_u32(index) {
             c.to_lowercase()
