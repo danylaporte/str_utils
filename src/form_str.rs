@@ -176,9 +176,18 @@ impl<'de, F: Default + Format> serde::Deserialize<'de> for FormStr<F> {
     where
         D: serde::Deserializer<'de>,
     {
-        let s = <&str>::deserialize(deserializer)?;
-        FormStr::new(s).map_err(serde::de::Error::custom)
+        let s = <Cow<str>>::deserialize(deserializer)?;
+        FormStr::new(&s).map_err(serde::de::Error::custom)
     }
+}
+
+#[cfg(feature = "serde")]
+#[test]
+fn test_deserialize() {
+    assert_eq!(
+        "hel\"lo",
+        &*serde_json::from_str::<FormStr<()>>("\"hel\\\"lo\"").unwrap()
+    );
 }
 
 #[cfg(feature = "serde")]
