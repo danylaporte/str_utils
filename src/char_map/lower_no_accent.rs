@@ -4,7 +4,7 @@ use super::MappedChars;
 pub fn lower_no_accent_char(c: char) -> std::str::Chars<'static> {
     let map = include_bytes!(concat!(env!("OUT_DIR"), "/map.bin"));
 
-    let index = (c as usize) * 10;
+    let index = (c as usize) * 13;
     let len = unsafe { *map.get_unchecked(index) } as usize;
 
     let lbound = index + 1;
