@@ -92,7 +92,7 @@ impl<'a, F> From<&'a FormStr<F>> for Cow<'a, str> {
     }
 }
 
-impl<'a, F> From<FormStr<F>> for Cow<'a, str> {
+impl<F> From<FormStr<F>> for Cow<'_, str> {
     fn from(value: FormStr<F>) -> Self {
         Cow::Owned(value.0.into_string())
     }

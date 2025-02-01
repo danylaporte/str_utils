@@ -163,7 +163,7 @@ pub enum StringCi1<'a, A> {
     StringIc(StringCi, A),
 }
 
-impl<'a, A> StringCi1<'a, A> {
+impl<A> StringCi1<'_, A> {
     fn as_tuple(&self) -> (&StrCi, &A) {
         match self {
             Self::StrIc(s, a) => (*s, a),
@@ -172,9 +172,9 @@ impl<'a, A> StringCi1<'a, A> {
     }
 }
 
-impl<'a, A: Eq> Eq for StringCi1<'a, A> {}
+impl<A: Eq> Eq for StringCi1<'_, A> {}
 
-impl<'a, A> Hash for StringCi1<'a, A>
+impl<A> Hash for StringCi1<'_, A>
 where
     A: Hash,
 {
@@ -183,13 +183,13 @@ where
     }
 }
 
-impl<'a, A: PartialEq> PartialEq for StringCi1<'a, A> {
+impl<A: PartialEq> PartialEq for StringCi1<'_, A> {
     fn eq(&self, other: &Self) -> bool {
         self.as_tuple().eq(&other.as_tuple())
     }
 }
 
-impl<'a, A, B> From<(StringCi, A)> for StringCi1<'static, B>
+impl<A, B> From<(StringCi, A)> for StringCi1<'static, B>
 where
     B: From<A>,
 {

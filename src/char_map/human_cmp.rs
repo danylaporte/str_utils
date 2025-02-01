@@ -62,9 +62,9 @@ enum WordOrNumber<'a> {
     Other(&'a str),
 }
 
-impl<'a> Eq for WordOrNumber<'a> {}
+impl Eq for WordOrNumber<'_> {}
 
-impl<'a> PartialEq for WordOrNumber<'a> {
+impl PartialEq for WordOrNumber<'_> {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Number(l), Self::Number(r)) => {
@@ -78,13 +78,13 @@ impl<'a> PartialEq for WordOrNumber<'a> {
     }
 }
 
-impl<'a> PartialOrd for WordOrNumber<'a> {
+impl PartialOrd for WordOrNumber<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<'a> Ord for WordOrNumber<'a> {
+impl Ord for WordOrNumber<'_> {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
             (Self::Number(l), Self::Number(r)) => {

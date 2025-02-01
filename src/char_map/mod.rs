@@ -14,9 +14,9 @@ pub struct MappedChars<'a> {
     mapped: std::str::Chars<'static>,
 }
 
-impl<'a> Eq for MappedChars<'a> {}
+impl Eq for MappedChars<'_> {}
 
-impl<'a> Iterator for MappedChars<'a> {
+impl Iterator for MappedChars<'_> {
     type Item = char;
 
     #[allow(clippy::while_let_on_iterator)]
@@ -37,19 +37,19 @@ impl<'a> Iterator for MappedChars<'a> {
     }
 }
 
-impl<'a> PartialEq for MappedChars<'a> {
+impl PartialEq for MappedChars<'_> {
     fn eq(&self, other: &Self) -> bool {
         Iterator::eq(self.clone(), other.clone())
     }
 }
 
-impl<'a> PartialOrd for MappedChars<'a> {
+impl PartialOrd for MappedChars<'_> {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<'a> Ord for MappedChars<'a> {
+impl Ord for MappedChars<'_> {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         Iterator::cmp(self.clone(), other.clone())
     }
