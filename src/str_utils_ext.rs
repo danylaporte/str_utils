@@ -1,7 +1,54 @@
-use super::{cmp::EqExt, CharExt};
+use crate::{cmp::EqExt, CharExt};
 
-/// Trait for searching string with accent / case insensitive comparison.
 pub trait StrUtilsExt {
+    /// Returns true if the given pattern matches a sub-slice of this string slice.
+    /// Returns false if it does not.
+    ///
+    /// The comparison is accent insensitive.
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::StrUtilsExt;
+    ///
+    /// assert!("Café Arabica".contains_ai("Cafe"));
+    /// ```
+    #[inline]
+    fn contains_ai(&self, pat: &str) -> bool {
+        self.find_ai(pat).is_some()
+    }
+
+    /// Returns true if the given pattern matches a sub-slice of this string slice.
+    /// Returns false if it does not.
+    ///
+    /// The comparison is accent / case insensitive.
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::StrUtilsExt;
+    ///
+    /// assert!("Café Arabica".contains_ai_ci("cafe"));
+    /// ```
+    #[inline]
+    fn contains_ai_ci(&self, pat: &str) -> bool {
+        self.find_ai_ci(pat).is_some()
+    }
+
+    /// Returns true if the given pattern matches a sub-slice of this string slice.
+    /// Returns false if it does not.
+    ///
+    /// The comparison is case insensitive.
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::StrUtilsExt;
+    ///
+    /// assert!("Café Arabica".contains_ci("café"));
+    /// ```
+    #[inline]
+    fn contains_ci(&self, pat: &str) -> bool {
+        self.find_ci(pat).is_some()
+    }
+
     /// Returns true if the given pattern matches a suffix of this string slice.
     /// Returns false if it does not.
     ///
@@ -92,6 +139,36 @@ pub trait StrUtilsExt {
     /// ```
     fn find_ci(&self, pat: &str) -> Option<usize>;
 
+    /// Transform into a no accent String.
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::StrUtilsExt;
+    ///
+    /// assert_eq!("Café Arabica".no_accent(), "Cafe Arabica");
+    /// ```
+    fn no_accent(&self) -> String;
+
+    /// Transform into a no accent lowercase String.
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::StrUtilsExt;
+    ///
+    /// assert_eq!("Café Arabica".no_accent_lowercase(), "cafe arabica");
+    /// ```
+    fn no_accent_lowercase(&self) -> String;
+
+    /// Transform into a no accent uppercase String.
+    ///
+    /// # Example
+    /// ```
+    /// use str_utils::StrUtilsExt;
+    ///
+    /// assert_eq!("Café Arabica".no_accent_uppercase(), "CAFE ARABICA");
+    /// ```
+    fn no_accent_uppercase(&self) -> String;
+
     /// Returns true if the given pattern matches a prefix of this string slice.
     /// Returns false if it does not.
     ///
@@ -131,85 +208,6 @@ pub trait StrUtilsExt {
     /// ```
     fn starts_with_ci(&self, pat: &str) -> bool;
 
-    /// Transform into a no accent String.
-    ///
-    /// # Example
-    /// ```
-    /// use str_utils::StrUtilsExt;
-    ///
-    /// assert_eq!("Café Arabica".no_accent(), "Cafe Arabica");
-    /// ```
-    fn no_accent(&self) -> String;
-
-    /// Transform into a no accent lowercase String.
-    ///
-    /// # Example
-    /// ```
-    /// use str_utils::StrUtilsExt;
-    ///
-    /// assert_eq!("Café Arabica".no_accent_lowercase(), "cafe arabica");
-    /// ```
-    fn no_accent_lowercase(&self) -> String;
-
-    /// Transform into a no accent uppercase String.
-    ///
-    /// # Example
-    /// ```
-    /// use str_utils::StrUtilsExt;
-    ///
-    /// assert_eq!("Café Arabica".no_accent_uppercase(), "CAFE ARABICA");
-    /// ```
-    fn no_accent_uppercase(&self) -> String;
-
-    /// Returns true if the given pattern matches a sub-slice of this string slice.
-    /// Returns false if it does not.
-    ///
-    /// The comparison is accent insensitive.
-    ///
-    /// # Example
-    /// ```
-    /// use str_utils::StrUtilsExt;
-    ///
-    /// assert!("Café Arabica".contains_ai("Cafe"));
-    /// ```
-    #[inline]
-    fn contains_ai(&self, pat: &str) -> bool {
-        self.find_ai(pat).is_some()
-    }
-
-    /// Returns true if the given pattern matches a sub-slice of this string slice.
-    /// Returns false if it does not.
-    ///
-    /// The comparison is accent / case insensitive.
-    ///
-    /// # Example
-    /// ```
-    /// use str_utils::StrUtilsExt;
-    ///
-    /// assert!("Café Arabica".contains_ai_ci("cafe"));
-    /// ```
-    #[inline]
-    fn contains_ai_ci(&self, pat: &str) -> bool {
-        self.find_ai_ci(pat).is_some()
-    }
-
-    /// Returns true if the given pattern matches a sub-slice of this string slice.
-    /// Returns false if it does not.
-    ///
-    /// The comparison is case insensitive.
-    ///
-    /// # Example
-    /// ```
-    /// use str_utils::StrUtilsExt;
-    ///
-    /// assert!("Café Arabica".contains_ci("café"));
-    /// ```
-    #[inline]
-    fn contains_ci(&self, pat: &str) -> bool {
-        self.find_ci(pat).is_some()
-    }
-
-    /// truncate a string based on chars count instead of bytes.
     fn truncate_chars(&self, max_chars: usize) -> &str;
 }
 
@@ -242,21 +240,6 @@ impl StrUtilsExt for str {
     #[inline]
     fn find_ci(&self, pat: &str) -> Option<usize> {
         find_str(self, pat, EqExt::eq_ci)
-    }
-
-    #[inline]
-    fn starts_with_ai(&self, pat: &str) -> bool {
-        starts_with(self, pat, EqExt::eq_ai)
-    }
-
-    #[inline]
-    fn starts_with_ai_ci(&self, pat: &str) -> bool {
-        starts_with(self, pat, EqExt::eq_ai_ci)
-    }
-
-    #[inline]
-    fn starts_with_ci(&self, pat: &str) -> bool {
-        starts_with(self, pat, EqExt::eq_ci)
     }
 
     fn no_accent(&self) -> String {
@@ -297,45 +280,6 @@ impl StrUtilsExt for str {
         s
     }
 
-    fn truncate_chars(&self, max_chars: usize) -> &str {
-        match self.char_indices().nth(max_chars) {
-            None => self,
-            Some((idx, _)) => &self[..idx],
-        }
-    }
-}
-
-impl StrUtilsExt for String {
-    #[inline]
-    fn ends_with_ai(&self, pat: &str) -> bool {
-        ends_with(self, pat, EqExt::eq_ai)
-    }
-
-    #[inline]
-    fn ends_with_ai_ci(&self, pat: &str) -> bool {
-        ends_with(self, pat, EqExt::eq_ai_ci)
-    }
-
-    #[inline]
-    fn ends_with_ci(&self, pat: &str) -> bool {
-        ends_with(self, pat, EqExt::eq_ci)
-    }
-
-    #[inline]
-    fn find_ai(&self, pat: &str) -> Option<usize> {
-        find_str(self, pat, EqExt::eq_ai)
-    }
-
-    #[inline]
-    fn find_ai_ci(&self, pat: &str) -> Option<usize> {
-        find_str(self, pat, EqExt::eq_ai_ci)
-    }
-
-    #[inline]
-    fn find_ci(&self, pat: &str) -> Option<usize> {
-        find_str(self, pat, EqExt::eq_ci)
-    }
-
     #[inline]
     fn starts_with_ai(&self, pat: &str) -> bool {
         starts_with(self, pat, EqExt::eq_ai)
@@ -351,39 +295,12 @@ impl StrUtilsExt for String {
         starts_with(self, pat, EqExt::eq_ci)
     }
 
-    #[inline]
-    fn no_accent(&self) -> String {
-        self.as_str().no_accent()
-    }
-
-    #[inline]
-    fn no_accent_lowercase(&self) -> String {
-        self.as_str().no_accent_lowercase()
-    }
-
-    #[inline]
-    fn no_accent_uppercase(&self) -> String {
-        self.as_str().no_accent_uppercase()
-    }
-
     fn truncate_chars(&self, max_chars: usize) -> &str {
-        self.as_str().truncate_chars(max_chars)
+        match self.char_indices().nth(max_chars) {
+            None => self,
+            Some((idx, _)) => &self[..idx],
+        }
     }
-}
-
-fn find_str<F>(src: &str, pat: &str, f: F) -> Option<usize>
-where
-    F: Fn(char, char) -> bool,
-{
-    for (index, _) in src.char_indices() {
-        return match search(src[index..].chars(), pat.chars(), &f) {
-            SearchResult::Found => Some(index),
-            SearchResult::NotFoundContinue => continue,
-            SearchResult::NotFoundFinal => None,
-        };
-    }
-
-    None
 }
 
 #[derive(Eq, PartialEq)]
@@ -402,6 +319,21 @@ where
     F: Fn(char, char) -> bool,
 {
     search(src.chars().rev(), pat.chars().rev(), f) == SearchResult::Found
+}
+
+fn find_str<F>(src: &str, pat: &str, f: F) -> Option<usize>
+where
+    F: Fn(char, char) -> bool,
+{
+    for (index, _) in src.char_indices() {
+        return match search(src[index..].chars(), pat.chars(), &f) {
+            SearchResult::Found => Some(index),
+            SearchResult::NotFoundContinue => continue,
+            SearchResult::NotFoundFinal => None,
+        };
+    }
+
+    None
 }
 
 #[inline]
