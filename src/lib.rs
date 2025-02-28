@@ -4,6 +4,7 @@ pub mod cmp;
 pub mod form_str;
 pub mod fs;
 mod none_if_empty;
+pub mod sanitizing;
 pub mod str_ci;
 mod str_utils_ext;
 mod trim_in_place;
