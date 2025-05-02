@@ -14,7 +14,7 @@ pub trait StrUtilsExt {
     /// ```
     #[inline]
     fn contains_ai(&self, pat: &str) -> bool {
-        self.find_ai(pat).is_some()
+        pat.is_empty() || self.find_ai(pat).is_some()
     }
 
     /// Returns true if the given pattern matches a sub-slice of this string slice.
@@ -30,7 +30,7 @@ pub trait StrUtilsExt {
     /// ```
     #[inline]
     fn contains_ai_ci(&self, pat: &str) -> bool {
-        self.find_ai_ci(pat).is_some()
+        pat.is_empty() || self.find_ai_ci(pat).is_some()
     }
 
     /// Returns true if the given pattern matches a sub-slice of this string slice.
@@ -46,7 +46,7 @@ pub trait StrUtilsExt {
     /// ```
     #[inline]
     fn contains_ci(&self, pat: &str) -> bool {
-        self.find_ci(pat).is_some()
+        pat.is_empty() || self.find_ci(pat).is_some()
     }
 
     /// Returns true if the given pattern matches a suffix of this string slice.
@@ -318,7 +318,7 @@ fn ends_with<F>(src: &str, pat: &str, f: F) -> bool
 where
     F: Fn(char, char) -> bool,
 {
-    search(src.chars().rev(), pat.chars().rev(), f) == SearchResult::Found
+    pat.is_empty() || search(src.chars().rev(), pat.chars().rev(), f) == SearchResult::Found
 }
 
 fn find_str<F>(src: &str, pat: &str, f: F) -> Option<usize>
@@ -341,7 +341,7 @@ fn starts_with<F>(src: &str, pat: &str, f: F) -> bool
 where
     F: Fn(char, char) -> bool,
 {
-    search(src.chars(), pat.chars(), f) == SearchResult::Found
+    pat.is_empty() || search(src.chars(), pat.chars(), f) == SearchResult::Found
 }
 
 fn search<F, S, P>(mut src: S, mut pat: P, f: F) -> SearchResult
@@ -371,6 +371,10 @@ fn ends_with_ai_works() {
     assert!(!"Café".ends_with_ai("FE"));
 
     assert!("Café".to_owned().ends_with_ai("fe"));
+
+    assert!("".ends_with_ai(""));
+    assert!(" ".ends_with_ai(""));
+    assert!(!"".ends_with_ai(" "));
 }
 
 #[test]
@@ -380,6 +384,10 @@ fn ends_with_ai_ci_works() {
     assert!("CafÉ".ends_with_ai_ci("fe"));
 
     assert!("Café".to_owned().ends_with_ai_ci("FE"));
+
+    assert!("".ends_with_ai_ci(""));
+    assert!(" ".ends_with_ai_ci(""));
+    assert!(!"".ends_with_ai_ci(" "));
 }
 
 #[test]
@@ -387,6 +395,10 @@ fn ends_with_ci_works() {
     assert!("Café".ends_with_ci("FÉ"));
     assert!(!"Café".ends_with_ci("FE"));
     assert!("Café".to_owned().ends_with_ci("FÉ"));
+
+    assert!("".ends_with_ci(""));
+    assert!(" ".ends_with_ci(""));
+    assert!(!"".ends_with_ci(" "));
 }
 
 #[test]
@@ -395,6 +407,10 @@ fn starts_with_ai_works() {
     assert!("Cafe".starts_with_ai("Café"));
     assert!(!"Café".starts_with_ai("CaFE"));
     assert!("Café".to_owned().starts_with_ai("Cafe"));
+
+    assert!("".starts_with_ai(""));
+    assert!(" ".starts_with_ai(""));
+    assert!(!"".starts_with_ai(" "));
 }
 
 #[test]
@@ -404,6 +420,10 @@ fn starts_with_ai_ci_works() {
     assert!("CafÉ Arabica".starts_with_ai_ci("Cafe"));
 
     assert!("Café Arabica".to_owned().starts_with_ai_ci("CAFE"));
+
+    assert!("".starts_with_ai_ci(""));
+    assert!(" ".starts_with_ai_ci(""));
+    assert!(!"".starts_with_ai_ci(" "));
 }
 
 #[test]
@@ -411,4 +431,8 @@ fn starts_with_ci_works() {
     assert!("Café Arabica".starts_with_ci("CAFÉ"));
     assert!(!"Café Arabica".starts_with_ci("CAFE"));
     assert!("Café Arabica".to_owned().starts_with_ci("caFÉ"));
+
+    assert!("".starts_with_ci(""));
+    assert!(" ".starts_with_ci(""));
+    assert!(!"".starts_with_ci(" "));
 }
