@@ -73,7 +73,13 @@ fn main() {
     let flat_blocks: Vec<u16> = blocks.iter().flatten().copied().collect();
 
     let mut src = String::new();
-    writeln!(src, "static LEVEL1: [u16; {}] = {:?};", level1.len(), level1).unwrap();
+    writeln!(
+        src,
+        "static LEVEL1: [u16; {}] = {:?};",
+        level1.len(),
+        level1
+    )
+    .unwrap();
     writeln!(
         src,
         "static BLOCKS: [u16; {}] = {:?};",
@@ -81,7 +87,13 @@ fn main() {
         flat_blocks
     )
     .unwrap();
-    writeln!(src, "static ENTRIES: [u32; {}] = {:?};", entries.len(), entries).unwrap();
+    writeln!(
+        src,
+        "static ENTRIES: [u32; {}] = {:?};",
+        entries.len(),
+        entries
+    )
+    .unwrap();
     writeln!(src, "static POOL: &str = {:?};", pool).unwrap();
 
     fs::write(Path::new(&out_dir).join("char_map.rs"), src).unwrap();

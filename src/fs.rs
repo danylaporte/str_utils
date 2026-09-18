@@ -131,7 +131,10 @@ pub fn validate_sub_path(s: &str) -> Result<()> {
 
 #[test]
 fn test_format_sub_path() {
-    assert_eq!(format_sub_path("sub_dir/text.txt").unwrap(), "sub_dir/text.txt");
+    assert_eq!(
+        format_sub_path("sub_dir/text.txt").unwrap(),
+        "sub_dir/text.txt"
+    );
     assert_eq!(format_sub_path(" a \\ b / c.txt ").unwrap(), "a/b/c.txt");
     assert_eq!(format_sub_path("file.txt").unwrap(), "file.txt");
     assert!(format_sub_path("/file.txt").is_err());
