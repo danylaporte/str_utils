@@ -33,13 +33,17 @@ impl Display for FsError {
 }
 
 /// Apply the validation of the [validate_sub_path] function. If it works, it format
-/// the path by triming segment.
+/// the path by triming segment and normalizing separators to `/`.
 pub fn format_sub_path(s: &str) -> Result<String> {
     validate_sub_path(s)?;
 
-    let mut out = String::new();
+    let mut out = String::with_capacity(s.len());
 
-    for s in s.split(['/', '\\']) {
+    for (i, s) in s.split(['/', '\\']).enumerate() {
+        if i > 0 {
+            out.push('/');
+        }
+
         out.push_str(s.trim());
     }
 
@@ -123,6 +127,14 @@ pub fn validate_sub_path(s: &str) -> Result<()> {
     }
 
     Ok(())
+}
+
+#[test]
+fn test_format_sub_path() {
+    assert_eq!(format_sub_path("sub_dir/text.txt").unwrap(), "sub_dir/text.txt");
+    assert_eq!(format_sub_path(" a \\ b / c.txt ").unwrap(), "a/b/c.txt");
+    assert_eq!(format_sub_path("file.txt").unwrap(), "file.txt");
+    assert!(format_sub_path("/file.txt").is_err());
 }
 
 #[test]
