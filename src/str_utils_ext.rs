@@ -1,4 +1,4 @@
-use crate::{CharExt, cmp::EqExt};
+use crate::{CharExt, char_map::lower_no_accent_char, cmp::EqExt};
 
 pub trait StrUtilsExt {
     /// Returns true if the given pattern matches a sub-slice of this string slice.
@@ -244,38 +244,24 @@ impl StrUtilsExt for str {
 
     fn no_accent(&self) -> String {
         let mut s = String::with_capacity(self.len());
-
-        for c in self.chars() {
-            s.push_str(c.no_accent());
-        }
-
+        s.extend(self.chars().flat_map(CharExt::no_accent));
         s
     }
 
     fn no_accent_lowercase(&self) -> String {
         let mut s = String::with_capacity(self.len());
-
-        for c in self
-            .chars()
-            .flat_map(|c| c.no_accent().chars())
-            .flat_map(char::to_lowercase)
-        {
-            s.push(c);
-        }
-
+        s.extend(self.chars().flat_map(lower_no_accent_char));
         s
     }
 
     fn no_accent_uppercase(&self) -> String {
         let mut s = String::with_capacity(self.len());
 
-        for c in self
-            .chars()
-            .flat_map(|c| c.no_accent().chars())
-            .flat_map(char::to_uppercase)
-        {
-            s.push(c);
-        }
+        s.extend(
+            self.chars()
+                .flat_map(CharExt::no_accent)
+                .flat_map(char::to_uppercase),
+        );
 
         s
     }

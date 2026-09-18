@@ -2,10 +2,10 @@
 //!
 //! This module regroup comparison trait for equality and ordering.
 
+use crate::char_map::{lower_no_accent_char, no_accent_char};
 use std::cmp::Ordering;
 use std::hash::{Hash, Hasher};
 use std::str::Chars;
-use unidecode::unidecode_char;
 
 /// Trait for equality comparisons of string and chars.
 ///
@@ -74,33 +74,14 @@ impl EqExt for char {
     where
         Self: Sized,
     {
-        if self == r {
-            return true;
-        }
-
-        let l = unidecode_char(self);
-        let r = unidecode_char(r);
-        l == r
+        self == r || no_accent_char(self).eq(no_accent_char(r))
     }
 
     fn eq_ai_ci(self, r: Self) -> bool
     where
         Self: Sized,
     {
-        if self == r {
-            return true;
-        }
-
-        let l = unidecode_char(self);
-        let r = unidecode_char(r);
-
-        if l == r {
-            return true;
-        }
-
-        l.chars()
-            .flat_map(char::to_lowercase)
-            .eq(r.chars().flat_map(char::to_lowercase))
+        self == r || lower_no_accent_char(self).eq(lower_no_accent_char(r))
     }
 
     #[inline]
@@ -116,11 +97,13 @@ impl EqExt for char {
     }
 
     fn hash_ai<H: Hasher>(self, state: &mut H) {
-        unidecode_char(self).hash(state);
+        for c in no_accent_char(self) {
+            c.hash(state);
+        }
     }
 
     fn hash_ai_ci<H: Hasher>(self, state: &mut H) {
-        for c in unidecode_char(self).chars().flat_map(|c| c.to_lowercase()) {
+        for c in lower_no_accent_char(self) {
             c.hash(state);
         }
     }
@@ -138,7 +121,13 @@ impl EqExt for &str {
     where
         Self: Sized,
     {
-        eq_chars(self.chars(), r.chars(), EqExt::eq_ai)
+        if self.is_ascii() && r.is_ascii() {
+            return self == r;
+        }
+
+        self.chars()
+            .flat_map(no_accent_char)
+            .eq(r.chars().flat_map(no_accent_char))
     }
 
     #[inline]
@@ -146,7 +135,13 @@ impl EqExt for &str {
     where
         Self: Sized,
     {
-        eq_chars(self.chars(), r.chars(), EqExt::eq_ai_ci)
+        if self.is_ascii() && r.is_ascii() {
+            return self.eq_ignore_ascii_case(r);
+        }
+
+        self.chars()
+            .flat_map(lower_no_accent_char)
+            .eq(r.chars().flat_map(lower_no_accent_char))
     }
 
     #[inline]
@@ -275,14 +270,12 @@ pub trait OrdExt<Rhs = Self> {
 impl OrdExt<char> for char {
     #[inline]
     fn cmp_ai(self, r: char) -> Ordering {
-        unidecode_char(self).cmp(unidecode_char(r))
+        no_accent_char(self).cmp(no_accent_char(r))
     }
 
+    #[inline]
     fn cmp_ai_ci(self, r: char) -> Ordering {
-        unidecode_char(self)
-            .chars()
-            .flat_map(char::to_lowercase)
-            .cmp(unidecode_char(r).chars().flat_map(char::to_lowercase))
+        lower_no_accent_char(self).cmp(lower_no_accent_char(r))
     }
 
     #[inline]
@@ -298,12 +291,27 @@ impl OrdExt<char> for char {
 impl OrdExt<&str> for &str {
     #[inline]
     fn cmp_ai(self, r: &str) -> Ordering {
-        ord_chars(self.chars(), r.chars(), OrdExt::cmp_ai)
+        if self.is_ascii() && r.is_ascii() {
+            return self.cmp(r);
+        }
+
+        self.chars()
+            .flat_map(no_accent_char)
+            .cmp(r.chars().flat_map(no_accent_char))
     }
 
     #[inline]
     fn cmp_ai_ci(self, r: &str) -> Ordering {
-        ord_chars(self.chars(), r.chars(), OrdExt::cmp_ai_ci)
+        if self.is_ascii() && r.is_ascii() {
+            return self
+                .bytes()
+                .map(|b| b.to_ascii_lowercase())
+                .cmp(r.bytes().map(|b| b.to_ascii_lowercase()));
+        }
+
+        self.chars()
+            .flat_map(lower_no_accent_char)
+            .cmp(r.chars().flat_map(lower_no_accent_char))
     }
 
     #[inline]
@@ -388,6 +396,9 @@ fn str_eq_ai_works() {
     assert!("abc".eq_ai("àbc"));
     assert!("abc".to_owned().eq_ai("àbc"));
     assert!(!"abc".eq_ai("abca"));
+    // precomposed vs decomposed
+    assert!("é".eq_ai("e\u{301}"));
+    assert!("\u{d55c}".eq_ai("\u{1112}\u{1161}\u{11ab}"));
 }
 
 #[test]

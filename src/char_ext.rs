@@ -1,4 +1,4 @@
-use unidecode::unidecode_char;
+use crate::char_map::{MappedChar, no_accent_char};
 
 /// A trait to remove accent on a char.
 pub trait CharExt {
@@ -8,21 +8,22 @@ pub trait CharExt {
     /// ```
     /// use str_utils::CharExt;
     ///
-    /// assert_eq!('é'.no_accent(), "e");
+    /// assert_eq!('é'.no_accent().collect::<String>(), "e");
     /// ```
-    fn no_accent(self) -> &'static str
+    fn no_accent(self) -> MappedChar
     where
         Self: Sized;
 }
 
 impl CharExt for char {
-    fn no_accent(self) -> &'static str {
-        unidecode_char(self)
+    #[inline]
+    fn no_accent(self) -> MappedChar {
+        no_accent_char(self)
     }
 }
 
 #[test]
 fn no_accent_works() {
-    assert_eq!('à'.no_accent(), "a");
-    assert_eq!('À'.no_accent(), "A");
+    assert_eq!('à'.no_accent().collect::<String>(), "a");
+    assert_eq!('À'.no_accent().collect::<String>(), "A");
 }

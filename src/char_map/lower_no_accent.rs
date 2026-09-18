@@ -1,81 +1,32 @@
 use super::MappedChars;
-use std::{iter::FusedIterator, str::Chars};
+use super::table::{MappedChar, Table};
 
-include!(concat!(env!("OUT_DIR"), "/char_map.rs"));
-
-const EMPTY: u16 = 0;
-const IDENTITY: u16 = 1;
-const FIRST_ENTRY: u16 = 2;
-
-/// Iterator returned by [lower_no_accent_char].
-#[derive(Clone, Debug)]
-pub struct LowerNoAccentChar {
-    single: Option<char>,
-    rest: Chars<'static>,
+mod map {
+    include!(concat!(env!("OUT_DIR"), "/lower_no_accent_map.rs"));
 }
 
-impl LowerNoAccentChar {
-    #[inline]
-    fn single(c: Option<char>) -> Self {
-        Self {
-            single: c,
-            rest: "".chars(),
-        }
-    }
-}
-
-impl Iterator for LowerNoAccentChar {
-    type Item = char;
-
-    #[inline]
-    fn next(&mut self) -> Option<char> {
-        match self.single.take() {
-            Some(c) => Some(c),
-            None => self.rest.next(),
-        }
-    }
-
-    #[inline]
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        let n = self.single.is_some() as usize;
-        let (lo, hi) = self.rest.size_hint();
-        (lo + n, hi.map(|hi| hi + n))
-    }
-}
-
-impl FusedIterator for LowerNoAccentChar {}
+static TABLE: Table = Table {
+    level1: &map::LEVEL1,
+    blocks: &map::BLOCKS,
+    entries: &map::ENTRIES,
+    pool: map::POOL,
+};
 
 /// Convert a char to lowercase without accent.
 #[inline]
-pub fn lower_no_accent_char(c: char) -> LowerNoAccentChar {
+pub fn lower_no_accent_char(c: char) -> MappedChar {
     if c.is_ascii() {
-        return LowerNoAccentChar::single(Some(c.to_ascii_lowercase()));
+        return MappedChar::single(Some(c.to_ascii_lowercase()));
     }
 
-    let cp = c as usize;
-    let block = LEVEL1[cp >> 8] as usize;
-
-    match BLOCKS[(block << 8) | (cp & 0xFF)] {
-        EMPTY => LowerNoAccentChar::single(None),
-        IDENTITY => LowerNoAccentChar::single(Some(c)),
-        id => {
-            let packed = ENTRIES[(id - FIRST_ENTRY) as usize];
-            let offset = (packed >> 8) as usize;
-            let len = (packed & 0xFF) as usize;
-
-            LowerNoAccentChar {
-                single: None,
-                rest: POOL[offset..offset + len].chars(),
-            }
-        }
-    }
+    TABLE.lookup(c)
 }
 
 /// Convert the Chars iterator to an iterator having all lowercase without accent.
 pub fn lower_no_accent_chars(s: &str) -> MappedChars<'_> {
     MappedChars {
         chars: s.chars(),
-        mapped: LowerNoAccentChar::single(None),
+        mapped: MappedChar::single(None),
     }
 }
 

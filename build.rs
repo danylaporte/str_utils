@@ -1,15 +1,18 @@
-//! Generates a compact two-level lookup table for `lower_no_accent_char`.
+//! Generates compact two-level lookup tables for `no_accent_char` and
+//! `lower_no_accent_char`.
 //!
 //! Level 1 maps `code_point >> 8` to a block id. Each block holds 256 `u16`
 //! codes for the low byte: `EMPTY`, `IDENTITY` or an index into `ENTRIES`,
 //! which packs `(offset << 8) | len` into a shared string `POOL`.
 //! Blocks are deduplicated, so unassigned / identity-only ranges cost nothing.
+//! Hangul syllables (U+AC00..=U+D7A3) are left out: their decomposition is
+//! arithmetic and handled in `Table::lookup`.
 
 use std::collections::HashMap;
 use std::env;
 use std::fmt::Write as _;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use unicode_normalization::UnicodeNormalization;
 
 const EMPTY: u16 = 0;
@@ -17,8 +20,24 @@ const IDENTITY: u16 = 1;
 const FIRST_ENTRY: u16 = 2;
 
 fn main() {
-    let out_dir = env::var_os("OUT_DIR").unwrap();
+    let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
+    generate(&out_dir.join("no_accent_map.rs"), |c, out| {
+        out.extend(c.nfd().filter(keep));
+    });
+
+    generate(&out_dir.join("lower_no_accent_map.rs"), |c, out| {
+        out.extend(c.to_lowercase().nfd().filter(keep));
+    });
+
+    println!("cargo:rerun-if-changed=build.rs");
+}
+
+fn keep(c: &char) -> bool {
+    c.is_ascii() || c.is_alphanumeric()
+}
+
+fn generate(path: &Path, map: impl Fn(char, &mut String)) {
     let mut pool = String::new();
     let mut entries: Vec<u32> = Vec::new();
     let mut entry_ids: HashMap<String, u16> = HashMap::new();
@@ -31,16 +50,18 @@ fn main() {
         let mut block = [EMPTY; 256];
 
         for (lo, slot) in block.iter_mut().enumerate() {
-            let Some(c) = char::from_u32((hi << 8) | lo as u32) else {
+            let cp = (hi << 8) | lo as u32;
+
+            if (0xAC00..=0xD7A3).contains(&cp) {
+                continue;
+            }
+
+            let Some(c) = char::from_u32(cp) else {
                 continue;
             };
 
             mapped.clear();
-            mapped.extend(
-                c.to_lowercase()
-                    .nfd()
-                    .filter(|c| c.is_ascii() || c.is_alphanumeric()),
-            );
+            map(c, &mut mapped);
 
             *slot = if mapped.is_empty() {
                 EMPTY
@@ -75,28 +96,26 @@ fn main() {
     let mut src = String::new();
     writeln!(
         src,
-        "static LEVEL1: [u16; {}] = {:?};",
+        "pub(super) static LEVEL1: [u16; {}] = {:?};",
         level1.len(),
         level1
     )
     .unwrap();
     writeln!(
         src,
-        "static BLOCKS: [u16; {}] = {:?};",
+        "pub(super) static BLOCKS: [u16; {}] = {:?};",
         flat_blocks.len(),
         flat_blocks
     )
     .unwrap();
     writeln!(
         src,
-        "static ENTRIES: [u32; {}] = {:?};",
+        "pub(super) static ENTRIES: [u32; {}] = {:?};",
         entries.len(),
         entries
     )
     .unwrap();
-    writeln!(src, "static POOL: &str = {:?};", pool).unwrap();
+    writeln!(src, "pub(super) static POOL: &str = {:?};", pool).unwrap();
 
-    fs::write(Path::new(&out_dir).join("char_map.rs"), src).unwrap();
-
-    println!("cargo:rerun-if-changed=build.rs");
+    fs::write(path, src).unwrap();
 }
