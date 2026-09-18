@@ -1,6 +1,6 @@
 [package]
 name = "str_utils"
-version = "0.11.1"
+version = "0.12.0"
 authors = ["Dany Laporte <dany_laporte@hotmail.com>"]
 edition = "2024"
 publish = false
