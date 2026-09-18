@@ -13,11 +13,7 @@ impl NoneIfEmpty for Box<str> {
     type Output = Box<str>;
 
     fn none_if_empty(self) -> Option<Self::Output> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(self)
-        }
+        if self.is_empty() { None } else { Some(self) }
     }
 
     fn none_if_trim_empty(self) -> Option<Self::Output> {
@@ -33,11 +29,7 @@ impl<'a> NoneIfEmpty for Cow<'a, str> {
     type Output = Cow<'a, str>;
 
     fn none_if_empty(self) -> Option<Self::Output> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(self)
-        }
+        if self.is_empty() { None } else { Some(self) }
     }
 
     fn none_if_trim_empty(self) -> Option<Self::Output> {
@@ -53,11 +45,7 @@ impl<F> NoneIfEmpty for FormStr<F> {
     type Output = FormStr<F>;
 
     fn none_if_empty(self) -> Option<Self::Output> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(self)
-        }
+        if self.is_empty() { None } else { Some(self) }
     }
 
     fn none_if_trim_empty(self) -> Option<Self::Output> {
@@ -94,11 +82,7 @@ impl<'a> NoneIfEmpty for &'a str {
     type Output = &'a str;
 
     fn none_if_empty(self) -> Option<Self::Output> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(self)
-        }
+        if self.is_empty() { None } else { Some(self) }
     }
 
     fn none_if_trim_empty(self) -> Option<Self::Output> {
@@ -114,11 +98,7 @@ impl NoneIfEmpty for String {
     type Output = String;
 
     fn none_if_empty(self) -> Option<Self::Output> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(self)
-        }
+        if self.is_empty() { None } else { Some(self) }
     }
 
     fn none_if_trim_empty(self) -> Option<Self::Output> {
@@ -137,11 +117,7 @@ where
     type Output = &'a T;
 
     fn none_if_empty(self) -> Option<Self::Output> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(self)
-        }
+        if self.is_empty() { None } else { Some(self) }
     }
 
     fn none_if_trim_empty(self) -> Option<Self::Output> {
@@ -160,11 +136,7 @@ where
     type Output = &'a mut T;
 
     fn none_if_empty(self) -> Option<Self::Output> {
-        if self.is_empty() {
-            None
-        } else {
-            Some(self)
-        }
+        if self.is_empty() { None } else { Some(self) }
     }
 
     fn none_if_trim_empty(self) -> Option<Self::Output> {

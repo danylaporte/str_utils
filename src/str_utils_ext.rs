@@ -1,4 +1,4 @@
-use crate::{cmp::EqExt, CharExt};
+use crate::{CharExt, cmp::EqExt};
 
 pub trait StrUtilsExt {
     /// Returns true if the given pattern matches a sub-slice of this string slice.

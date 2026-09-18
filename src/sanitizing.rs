@@ -5,7 +5,7 @@ pub fn is_valid_char(c: char) -> bool {
 }
 
 pub fn sanitize(s: &str) -> Cow<'_, str> {
-    if s.chars().all(|c| is_valid_char(c)) {
+    if s.chars().all(is_valid_char) {
         Cow::Borrowed(s)
     } else {
         Cow::Owned(s.chars().filter(|c| is_valid_char(*c)).collect())

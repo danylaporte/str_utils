@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use str_utils::cmp::EqExt;
 
 fn eq_ci(s: &str) -> bool {

@@ -1,4 +1,4 @@
-use crate::fs::{validate_filename, FsError};
+use crate::fs::{FsError, validate_filename};
 use std::{
     borrow::Cow,
     cmp::Ordering,
@@ -144,7 +144,7 @@ impl<F> PartialEq for FormStr<F> {
 impl<F> PartialOrd for FormStr<F> {
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.0.cmp(&other.0))
+        Some(self.cmp(other))
     }
 }
 

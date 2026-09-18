@@ -18,7 +18,7 @@ pub fn lower_no_accent_char(c: char) -> std::str::Chars<'static> {
 }
 
 /// Convert the Chars iterator to an iterator having all lowercase without accent.
-pub fn lower_no_accent_chars(s: &str) -> MappedChars {
+pub fn lower_no_accent_chars(s: &str) -> MappedChars<'_> {
     MappedChars {
         chars: s.chars(),
         mapped: "".chars(),

@@ -2,7 +2,7 @@
 name = "str_utils"
 version = "0.11.0"
 authors = ["Dany Laporte <dany_laporte@hotmail.com>"]
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies]
@@ -10,7 +10,7 @@ serde = { version = "1", optional = true }
 unidecode = "0.3"
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = "0.8.2"
 serde = { version = "1" }
 serde_json = { version = "1" }
 
