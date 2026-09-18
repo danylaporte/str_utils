@@ -11,7 +11,7 @@ use std::str::Chars;
 #[derive(Clone)]
 pub struct MappedChars<'a> {
     chars: Chars<'a>,
-    mapped: std::str::Chars<'static>,
+    mapped: LowerNoAccentChar,
 }
 
 impl Eq for MappedChars<'_> {}
@@ -19,13 +19,12 @@ impl Eq for MappedChars<'_> {}
 impl Iterator for MappedChars<'_> {
     type Item = char;
 
-    #[allow(clippy::while_let_on_iterator)]
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(c) = self.mapped.next() {
             return Some(c);
         }
 
-        while let Some(c) = self.chars.next() {
+        for c in self.chars.by_ref() {
             self.mapped = lower_no_accent_char(c);
 
             if let Some(c) = self.mapped.next() {

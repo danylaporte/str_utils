@@ -13,6 +13,7 @@ unidecode = "0.3"
 criterion = "0.8.2"
 serde = { version = "1" }
 serde_json = { version = "1" }
+unicode-normalization = "0.1"
 
 [build-dependencies]
 unicode-normalization = "0.1"

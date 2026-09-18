@@ -108,6 +108,10 @@ impl EqExt for char {
     where
         Self: Sized,
     {
+        if self.is_ascii() && r.is_ascii() {
+            return self.eq_ignore_ascii_case(&r);
+        }
+
         self == r || self.to_lowercase().eq(r.to_lowercase())
     }
 
@@ -150,6 +154,10 @@ impl EqExt for &str {
     where
         Self: Sized,
     {
+        if self.is_ascii() && r.is_ascii() {
+            return self.eq_ignore_ascii_case(r);
+        }
+
         eq_chars(self.chars(), r.chars(), EqExt::eq_ci)
     }
 
@@ -279,6 +287,10 @@ impl OrdExt<char> for char {
 
     #[inline]
     fn cmp_ci(self, r: char) -> Ordering {
+        if self.is_ascii() && r.is_ascii() {
+            return self.to_ascii_lowercase().cmp(&r.to_ascii_lowercase());
+        }
+
         self.to_lowercase().cmp(r.to_lowercase())
     }
 }
@@ -296,6 +308,13 @@ impl OrdExt<&str> for &str {
 
     #[inline]
     fn cmp_ci(self, r: &str) -> Ordering {
+        if self.is_ascii() && r.is_ascii() {
+            return self
+                .bytes()
+                .map(|b| b.to_ascii_lowercase())
+                .cmp(r.bytes().map(|b| b.to_ascii_lowercase()));
+        }
+
         ord_chars(self.chars(), r.chars(), OrdExt::cmp_ci)
     }
 }
